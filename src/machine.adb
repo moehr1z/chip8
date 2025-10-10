@@ -1,7 +1,9 @@
 package body Machine is
    procedure Step is
+      O : Opcode;
    begin
-
+      Fetch (O);
+      Decode_And_Execute (O);
    end Step;
 
    procedure Fetch (O : out Opcode) is
@@ -9,6 +11,7 @@ package body Machine is
       null;
 
    end Fetch;
+
    procedure Decode_And_Execute (O : Opcode) is
    begin
       null;
