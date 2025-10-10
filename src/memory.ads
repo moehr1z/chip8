@@ -8,5 +8,5 @@ package Memory is
    function Load_Memory (A : Address) return Word;
    procedure Store_Memory (A : Address; W : Word);
 private
-   Data_Space : array (Address) of Word;
+   Data_Space : array (Address) of Word := (others => 0);
 end Memory;
