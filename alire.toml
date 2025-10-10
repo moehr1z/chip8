@@ -1,0 +1,9 @@
+name = "chip8"
+description = "A simple CHIP-8 emulator."
+version = "0.1.0-dev"
+
+authors = ["moehr1z"]
+maintainers = ["moehr1z <mooehr1z@gmail.com>"]
+licenses = "MIT"
+website = ""
+tags = []
