@@ -42,7 +42,7 @@ package Registers is
 private
    General_Registers : array (General_Register_Number) of Register_Word :=
      (others => 0);
-   Address_Register  : Address := 0;
+   Address_Register  : Address := Address'First;
 
    VF : constant General_Register_Number := 16#F#;
 
