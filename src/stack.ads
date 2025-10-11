@@ -1,5 +1,3 @@
-with Machine; use Machine;
-
 package Stack is
    Capacity : constant := 64;
 

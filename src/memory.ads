@@ -1,12 +1,13 @@
-with Machine; use Machine;
-
 package Memory is
+   type Memory_Word is mod 2**8;
    type Address is
-     range 16#200#
-           .. 16#FFF#; -- there's actually 12 bits for addresses, but from 0x000 to 0x1FF there was the location of the original interpreter. So programs should only use the range given above.
+     range 16#200# .. 16#FFF#; -- there's actually 12 bits for addresses,
+   --  but from 0x000 to 0x1FF there was the location of the original interpreter.
+   --  So programs should only use the range given above.
 
-   function Load_Memory (A : Address) return Word;
-   procedure Store_Memory (A : Address; W : Word);
+   function Load (A : Address) return Memory_Word;
+   procedure Store (A : Address; W : Memory_Word);
+   procedure Load_Program (File_Name : String);
 private
-   Data_Space : array (Address) of Word := (others => 0);
+   Data_Space : array (Address) of Memory_Word := (others => 0);
 end Memory;

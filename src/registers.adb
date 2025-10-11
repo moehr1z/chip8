@@ -1,12 +1,13 @@
 package body Registers is
 
    procedure Set_General_Register
-     (Number : General_Register_Number; Value : Word) is
+     (Number : General_Register_Number; Value : Register_Word) is
    begin
       General_Registers (Number) := Value;
    end Set_General_Register;
 
-   function Get_General_Register (Number : General_Register_Number) return Word
+   function Get_General_Register
+     (Number : General_Register_Number) return Register_Word
    is (General_Registers (Number));
 
    procedure Set_Address_Register (Value : Address) is
@@ -40,7 +41,7 @@ package body Registers is
    end Set_Collision;
 
    procedure Set_VF_From_Boolean (B : Boolean) is
-      Value : Word := 0;
+      Value : Register_Word := 0;
    begin
       if B then
          Value := 1;

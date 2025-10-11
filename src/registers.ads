@@ -1,10 +1,11 @@
-with Machine; use Machine;
+with Memory; use Memory;
 
 package Registers is
+   type Register_Word is mod 2**8;
    type General_Register_Number is range 0 .. 16#F#;
 
    procedure Set_General_Register
-     (Number : General_Register_Number; Value : Word)
+     (Number : General_Register_Number; Value : Register_Word)
      -- Postcondition: The specified register is really set to Value and no other is modified
    with Post => Get_General_Register (Number) = Value;
    --  TODO: how to properly express this?
@@ -16,7 +17,7 @@ package Registers is
    --                           = Get_Address_Register'Old));
 
    function Get_General_Register
-     (Number : General_Register_Number) return Word;
+     (Number : General_Register_Number) return Register_Word;
 
    procedure Set_Address_Register (Value : Address)
    with Post => Get_Address_Register = Value;
@@ -39,7 +40,7 @@ package Registers is
    with Post => Collision_Is_Set = State;
 
 private
-   General_Registers : array (General_Register_Number) of Word :=
+   General_Registers : array (General_Register_Number) of Register_Word :=
      (others => 0);
    Address_Register  : Address := 0;
 
