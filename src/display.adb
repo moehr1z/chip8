@@ -4,9 +4,21 @@ package body Display is
    begin
       null;
    end Init;
-   procedure Draw is
+   procedure Update is
    begin
       null;
-   end Draw;
+   end Update;
+   procedure Draw_Sprite
+     (Location : Address;
+      Size     : Positive;
+      X_Pos    : X_Coordinate;
+      Y_Pos    : Y_Coordinate) is
+   begin
+      null;
+   end Draw_Sprite;
+   procedure Clear is
+   begin
+      null;
+   end Clear;
 
 end Display;
