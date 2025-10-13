@@ -1,13 +1,19 @@
 package Memory is
    type Memory_Word is mod 2**8;
-   type User_Address is
-     range 16#200# .. 16#FFF#; -- there's actually 12 bits for addresses,
-   --  but from 0x000 to 0x1FF there was the location of the original interpreter.
-   --  So programs should only use the range given above.
+   type Address is range 0 .. 16#FFF#;
+   subtype User_Address is
+     Address range 16#200# .. 16#FFF#;  -- Program address space
+   subtype Font_Address is
+     Address range 16#050# .. 16#0A0#;  -- Built in font address space
 
-   function Load (A : User_Address) return Memory_Word;
-   procedure Store (A : User_Address; W : Memory_Word);
+   function Load (A : Address) return Memory_Word
+   with Pre => A in User_Address'Range or else A in Font_Address'Range;
+   procedure Store (A : User_Address; W : Memory_Word)
+   with Post => Load (A) = W;
+
    procedure Load_Program (File_Name : String);
+   procedure Load_Font;  -- Loads the default hex font to the Fonts_Space
 private
    Data_Space : array (User_Address) of Memory_Word := (others => 0);
+   Font_Space : array (Font_Address) of Memory_Word := (others => 0);
 end Memory;

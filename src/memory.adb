@@ -1,8 +1,15 @@
 with Ada.Sequential_IO;
+with Sprite; use Sprite;
 
 package body Memory is
-   function Load (A : User_Address) return Memory_Word
-   is (Data_Space (A));
+   function Load (A : Address) return Memory_Word is
+   begin
+      if A in User_Address'Range then
+         return Data_Space (A);
+      else
+         return Font_Space (A);
+      end if;
+   end Load;
 
    procedure Store (A : User_Address; W : Memory_Word) is
    begin
@@ -26,4 +33,20 @@ package body Memory is
       end loop;
       Close (F);
    end Load_Program;
+
+   procedure Load_Font is
+      Current_Address : Font_Address := Font_Space'First;
+   begin
+      for Index_Sprite in Hex_Sprites'Range loop
+         declare
+            Current_Sprite : constant Hex_Sprite := Hex_Sprites (Index_Sprite);
+         begin
+            for Index_Byte in Current_Sprite'Range loop
+               Font_Space (Current_Address) :=
+                 Memory_Word (Current_Sprite (Index_Byte));
+               Current_Address := Current_Address + 1;
+            end loop;
+         end;
+      end loop;
+   end Load_Font;
 end Memory;
