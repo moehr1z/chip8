@@ -16,6 +16,11 @@ package body Stack is
       return Top;
    end Size;
 
+   function Peek return User_Address is
+   begin
+      return Items (Top);
+   end Peek;
+
    function Empty return Boolean
    is (Top = 0);
    function Full return Boolean
