@@ -6,6 +6,62 @@ package body Registers is
       General_Registers (Number) := Value;
    end Set_General_Register;
 
+   procedure Add_General_Register
+     (Number : General_Register_Number; Value : Register_Word)
+   is
+      Pre_Value   : constant Register_Word := Get_General_Register (Number);
+      After_Value : Register_Word;
+   begin
+      Set_General_Register (Number, Pre_Value + Value);
+      After_Value := Get_General_Register (Number);
+
+      -- Overflow
+      if After_Value < Pre_Value then
+         Set_VF (True);
+      else
+         Set_VF (False);
+      end if;
+   end Add_General_Register;
+
+   procedure Sub_General_Register
+     (Number : General_Register_Number; Value : Register_Word)
+   is
+      Pre_Value   : constant Register_Word := Get_General_Register (Number);
+      After_Value : Register_Word;
+   begin
+      Set_General_Register (Number, Pre_Value - Value);
+      After_Value := Get_General_Register (Number);
+
+      -- Underflow
+      if After_Value > Pre_Value then
+         Set_VF (False);
+      else
+         Set_VF (True);
+      end if;
+   end Sub_General_Register;
+
+   procedure Shift_Left_General_Register (Number : General_Register_Number) is
+      Value : constant Register_Word := Get_General_Register (Number);
+   begin
+      if (Value and 1) = 1 then
+         -- LSB
+         Set_VF (True);
+      end if;
+
+      Set_General_Register (Number, Value * 2);
+   end Shift_Left_General_Register;
+
+   procedure Shift_Right_General_Register (Number : General_Register_Number) is
+      Value : constant Register_Word := Get_General_Register (Number);
+   begin
+      if (Value and Register_Word (Register_Word'Modulus / 2)) = 1 then
+         -- MSB
+         Set_VF (True);
+      end if;
+
+      Set_General_Register (Number, Value / 2);
+   end Shift_Right_General_Register;
+
    function Get_General_Register
      (Number : General_Register_Number) return Register_Word
    is (General_Registers (Number));
@@ -18,34 +74,30 @@ package body Registers is
    function Get_Address_Register return Address
    is (Address_Register);
 
-   function Carry_Is_Set return Boolean
-   is (Get_General_Register (VF) /= 0);
-
-   procedure Set_Carry (State : Boolean) is
+   procedure Set_Program_Counter (Value : User_Address) is
    begin
-      Set_VF_From_Boolean (State);
-   end Set_Carry;
+      Program_Counter := Value;
+   end Set_Program_Counter;
 
-   function No_Borrow_Is_Set return Boolean
-   is (Get_General_Register (VF) /= 0);
-   procedure Set_No_Borrow (State : Boolean) is
+   procedure Increment_Program_Counter is
    begin
-      Set_VF_From_Boolean (State);
-   end Set_No_Borrow;
+      Program_Counter := Program_Counter + 1;
+   end Increment_Program_Counter;
 
-   function Collision_Is_Set return Boolean
-   is (Get_General_Register (VF) /= 0);
-   procedure Set_Collision (State : Boolean) is
+   procedure Skip_Next_Instruction is
    begin
-      Set_VF_From_Boolean (State);
-   end Set_Collision;
+      Program_Counter := Program_Counter + 2;
+   end Skip_Next_Instruction;
 
-   procedure Set_VF_From_Boolean (B : Boolean) is
+   function Get_Program_Counter return User_Address
+   is (Program_Counter);
+
+   procedure Set_VF (B : Boolean) is
       Value : Register_Word := 0;
    begin
       if B then
          Value := 1;
       end if;
       Set_General_Register (VF, Value);
-   end Set_VF_From_Boolean;
+   end Set_VF;
 end Registers;
