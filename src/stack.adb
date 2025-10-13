@@ -1,11 +1,11 @@
 package body Stack is
-   procedure Push (I : Address) is
+   procedure Push (I : User_Address) is
    begin
       Top := Top + 1;
       Items (Top) := I;
    end Push;
 
-   procedure Pop (I : out Address) is
+   procedure Pop (I : out User_Address) is
    begin
       I := Items (Top);
       Top := Top - 1;
