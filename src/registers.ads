@@ -27,6 +27,11 @@ package Registers is
      (Number : General_Register_Number; Value : Register_Word);
 
    -- TODO: conditions
+   -- Target = Other - Target
+   procedure SubN_General_Register
+     (Target : General_Register_Number; Other : General_Register_Number);
+
+   -- TODO: conditions
    procedure Shift_Left_General_Register (Number : General_Register_Number);
 
    -- TODO: conditions
@@ -50,11 +55,6 @@ package Registers is
      Pre  => Get_Program_Counter < User_Address'Last,
      Post => Get_Program_Counter = Get_Program_Counter'Old + 1;
 
-   procedure Skip_Next_Instruction
-   with
-     Pre  => Get_Program_Counter + 1 < User_Address'Last,
-     Post => Get_Program_Counter = Get_Program_Counter'Old + 2;
-
    function Get_Program_Counter return User_Address;
 
    procedure Set_VF (B : Boolean)
@@ -62,7 +62,7 @@ package Registers is
 
 private
    General_Registers : array (General_Register_Number) of Register_Word :=
-     (others => 0);
+     [others => 0];
    Address_Register  : Address := Address'First;
    Program_Counter   : User_Address := User_Address'First;
 

@@ -1,5 +1,6 @@
-package body Registers is
+with Instructions;
 
+package body Registers is
    procedure Set_General_Register
      (Number : General_Register_Number; Value : Register_Word) is
    begin
@@ -10,10 +11,9 @@ package body Registers is
      (Number : General_Register_Number; Value : Register_Word)
    is
       Pre_Value   : constant Register_Word := Get_General_Register (Number);
-      After_Value : Register_Word;
+      After_Value : constant Register_Word := Pre_Value + Value;
    begin
-      Set_General_Register (Number, Pre_Value + Value);
-      After_Value := Get_General_Register (Number);
+      Set_General_Register (Number, After_Value);
 
       -- Overflow
       if After_Value < Pre_Value then
@@ -27,10 +27,9 @@ package body Registers is
      (Number : General_Register_Number; Value : Register_Word)
    is
       Pre_Value   : constant Register_Word := Get_General_Register (Number);
-      After_Value : Register_Word;
+      After_Value : constant Register_Word := Pre_Value - Value;
    begin
-      Set_General_Register (Number, Pre_Value - Value);
-      After_Value := Get_General_Register (Number);
+      Set_General_Register (Number, After_Value);
 
       -- Underflow
       if After_Value > Pre_Value then
@@ -40,11 +39,28 @@ package body Registers is
       end if;
    end Sub_General_Register;
 
+   procedure SubN_General_Register
+     (Target : General_Register_Number; Other : General_Register_Number)
+   is
+      Pre_Value   : constant Register_Word := Get_General_Register (Other);
+      After_Value : constant Register_Word :=
+        Pre_Value - Get_General_Register (Target);
+   begin
+      Set_General_Register (Target, After_Value);
+
+      -- Underflow
+      if After_Value > Pre_Value then
+         Set_VF (False);
+      else
+         Set_VF (True);
+      end if;
+   end SubN_General_Register;
+
    procedure Shift_Left_General_Register (Number : General_Register_Number) is
       Value : constant Register_Word := Get_General_Register (Number);
    begin
-      if (Value and 1) = 1 then
-         -- LSB
+      if (Value and Register_Word (Register_Word'Modulus / 2)) = 1 then
+         -- MSB
          Set_VF (True);
       end if;
 
@@ -54,8 +70,8 @@ package body Registers is
    procedure Shift_Right_General_Register (Number : General_Register_Number) is
       Value : constant Register_Word := Get_General_Register (Number);
    begin
-      if (Value and Register_Word (Register_Word'Modulus / 2)) = 1 then
-         -- MSB
+      if (Value and 1) = 1 then
+         -- LSB
          Set_VF (True);
       end if;
 
@@ -81,13 +97,10 @@ package body Registers is
 
    procedure Increment_Program_Counter is
    begin
-      Program_Counter := Program_Counter + 1;
+      Program_Counter :=
+        User_Address
+          (Integer (Program_Counter) + Instructions.Instruction_Length);
    end Increment_Program_Counter;
-
-   procedure Skip_Next_Instruction is
-   begin
-      Program_Counter := Program_Counter + 2;
-   end Skip_Next_Instruction;
 
    function Get_Program_Counter return User_Address
    is (Program_Counter);
