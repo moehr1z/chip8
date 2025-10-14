@@ -20,16 +20,14 @@ private
    procedure Update_Delay_Timer
    with
      Post =>
-       (if Delay_Timer_Value'Old = 0
-        then
-          Delay_Timer_Value = Delay_Timer_Value'Old
-          or else Delay_Timer_Value < Delay_Timer_Value'Old);
+       Delay_Timer_Value < Delay_Timer_Value'Old
+       or else (if Delay_Timer_Value'Old = 0
+                then Delay_Timer_Value = Delay_Timer_Value'Old);
 
    procedure Update_Sound_Timer
    with
      Post =>
-       (if Sound_Timer_Value'Old = 0
-        then
-          Sound_Timer_Value = Sound_Timer_Value'Old
-          or else Sound_Timer_Value < Sound_Timer_Value'Old);
+       Sound_Timer_Value < Sound_Timer_Value'Old
+       or else (if Sound_Timer_Value'Old = 0
+                then Sound_Timer_Value = Sound_Timer_Value'Old);
 end Timers;
