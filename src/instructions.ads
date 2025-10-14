@@ -9,7 +9,7 @@ package Instructions is
      2; -- 2 Memory_Words per Instruction
    procedure Step;  --  does fetch, decode & execute
 private
-   type Opcode is mod 2**Instruction_Length;
+   type Opcode is mod 2**(Instruction_Length * 8);
 
    subtype NNN is User_Address;
    type N is mod 2**4;
@@ -18,6 +18,15 @@ private
    type Y is mod 2**4;
    type KK is mod 2**8;
    subtype Byte is KK;
+
+   type Instruction is record
+      N_Value   : N;
+      NNN_Value : NNN;
+      X_Value   : X;
+      Y_Value   : Y;
+      KK_Value  : KK;
+   end record;
+   function To_Instruction (O : Opcode) return Instruction;
 
    function Fetch return Opcode;
    procedure Execute

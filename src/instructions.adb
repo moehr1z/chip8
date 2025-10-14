@@ -27,10 +27,184 @@ package body Instructions is
    end Fetch;
 
    procedure Execute (O : Opcode) is
+      I : constant Instruction := To_Instruction (O);
    begin
-      null;
+      case O and 16#F000# is
+         when 16#0000# =>
+            case O is
+               when 16#00E0# =>
+                  Handle_Cls;
 
+               when 16#00EE# =>
+                  Handle_Ret;
+
+               when others =>
+                  Handle_Sys_Addr (User_Address (I.NNN_Value));
+            end case;
+
+         when 16#1000# =>
+            Handle_Jp_Addr (User_Address (I.NNN_Value));
+
+         when 16#2000# =>
+            Handle_Call_Addr (User_Address (I.NNN_Value));
+
+         when 16#3000# =>
+            Handle_Se_Vx_Byte
+              (General_Register_Number (I.X_Value), Byte (I.KK_Value));
+
+         when 16#4000# =>
+            Handle_Sne_Vx_Byte
+              (General_Register_Number (I.X_Value), Byte (I.KK_Value));
+
+         when 16#5000# =>
+            if (O and 16#000F#) = 0 then
+               Handle_Se_Vx_Vy
+                 (General_Register_Number (I.X_Value),
+                  General_Register_Number (I.Y_Value));
+            else
+               -- TODO: handle unknown instruction
+               null;
+            end if;
+
+         when 16#6000# =>
+            Handle_Ld_Vx_Byte
+              (General_Register_Number (I.X_Value), Byte (I.KK_Value));
+
+         when 16#7000# =>
+            Handle_Add_Vx_Byte
+              (General_Register_Number (I.X_Value), Byte (I.KK_Value));
+
+         when 16#8000# =>
+            case O and 16#000F# is
+               when 16#0000# =>
+                  Handle_Ld_Vx_Vy
+                    (General_Register_Number (I.X_Value),
+                     General_Register_Number (I.Y_Value));
+
+               when 16#0001# =>
+                  Handle_Or_Vx_Vy
+                    (General_Register_Number (I.X_Value),
+                     General_Register_Number (I.Y_Value));
+
+               when 16#0002# =>
+                  Handle_And_Vx_Vy
+                    (General_Register_Number (I.X_Value),
+                     General_Register_Number (I.Y_Value));
+
+               when 16#0003# =>
+                  Handle_Xor_Vx_Vy
+                    (General_Register_Number (I.X_Value),
+                     General_Register_Number (I.Y_Value));
+
+               when 16#0004# =>
+                  Handle_Add_Vx_Vy
+                    (General_Register_Number (I.X_Value),
+                     General_Register_Number (I.Y_Value));
+
+               when 16#0005# =>
+                  Handle_Sub_Vx_Vy
+                    (General_Register_Number (I.X_Value),
+                     General_Register_Number (I.Y_Value));
+
+               when 16#0006# =>
+                  Handle_Shr_Vx (General_Register_Number (I.X_Value));
+
+               when 16#0007# =>
+                  Handle_Subn_Vx_Vy
+                    (General_Register_Number (I.X_Value),
+                     General_Register_Number (I.Y_Value));
+
+               when 16#000E# =>
+                  Handle_Shl_Vx (General_Register_Number (I.X_Value));
+
+               when others =>
+                  -- TODO: handle unknown instruction
+                  null;
+            end case;
+
+         when 16#9000# =>
+            Handle_Sne_Vx_Vy
+              (General_Register_Number (I.X_Value),
+               General_Register_Number (I.Y_Value));
+
+         when 16#A000# =>
+            Handle_Ld_I_Addr (Address (I.NNN_Value));
+
+         when 16#B000# =>
+            Handle_Jp_V0_Addr (User_Address (I.NNN_Value));
+
+         when 16#C000# =>
+            Handle_Rnd_Vx_Byte
+              (General_Register_Number (I.X_Value), Byte (I.KK_Value));
+
+         when 16#D000# =>
+            Handle_Drw_Vx_Vy_Nibble
+              (General_Register_Number (I.X_Value),
+               General_Register_Number (I.Y_Value),
+               Nibble (I.N_Value));
+
+         when 16#E000# =>
+            case O and 16#00FF# is
+               when 16#009E# =>
+                  Handle_Skp_Vx (General_Register_Number (I.X_Value));
+
+               when 16#00A1# =>
+                  Handle_Sknp_Vx (General_Register_Number (I.X_Value));
+
+               when others =>
+                  -- TODO: handle unknown instruction
+                  null;
+            end case;
+
+         when 16#F000# =>
+            case O and 16#00FF# is
+               when 16#0007# =>
+                  Handle_Ld_Vx_Dt (General_Register_Number (I.X_Value));
+
+               when 16#000A# =>
+                  Handle_Ld_Vx_K (General_Register_Number (I.X_Value));
+
+               when 16#0015# =>
+                  Handle_Ld_Dt_Vx (General_Register_Number (I.X_Value));
+
+               when 16#0018# =>
+                  Handle_Ld_St_Vx (General_Register_Number (I.X_Value));
+
+               when 16#001E# =>
+                  Handle_Add_I_Vx (General_Register_Number (I.X_Value));
+
+               when 16#0029# =>
+                  Handle_Ld_F_Vx (General_Register_Number (I.X_Value));
+
+               when 16#0033# =>
+                  Handle_Ld_B_Vx (General_Register_Number (I.X_Value));
+
+               when 16#0055# =>
+                  Handle_Ld_I_Vx (General_Register_Number (I.X_Value));
+
+               when 16#0065# =>
+                  Handle_Ld_Vx_I (General_Register_Number (I.X_Value));
+
+               when others =>
+                  -- TODO: handle unknown instruction
+                  null;
+            end case;
+
+         when others =>
+            -- TODO: handle unknown instruction
+            null;
+      end case;
    end Execute;
+
+   function To_Instruction (O : Opcode) return Instruction is
+      N_Value   : constant N := N ((O and 16#000F#));
+      NNN_Value : constant NNN := NNN ((O and 16#0FFF#));
+      X_Value   : constant X := X ((O and 16#0F00#) / 2**8);
+      Y_Value   : constant Y := Y ((O and 16#00F0#) / 2**4);
+      KK_Value  : constant KK := KK ((O and 16#00FF#));
+   begin
+      return (N_Value, NNN_Value, X_Value, Y_Value, KK_Value);
+   end To_Instruction;
 
    -- Instruction handlers
    --
