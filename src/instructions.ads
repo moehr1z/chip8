@@ -1,13 +1,15 @@
 with Registers; use Registers;
 with Memory;    use Memory;
 
+-- instruction names and semantics are as described here:
+-- http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.1
+
 package Instructions is
    Instruction_Length : constant Integer :=
      2; -- 2 Memory_Words per Instruction
    procedure Step;  --  does fetch, decode & execute
 private
-   Opcode_Length : constant Integer := 2**16;
-   type Opcode is mod Opcode_Length;
+   type Opcode is mod 2**Instruction_Length;
 
    subtype NNN is User_Address;
    type N is mod 2**4;
@@ -17,7 +19,7 @@ private
    type KK is mod 2**8;
    subtype Byte is KK;
 
-   procedure Fetch (O : out Opcode);
+   function Fetch return Opcode;
    procedure Execute
      (O :
         Opcode);   -- Conceptionally decode and execute are two different steps, but there is no real advantage of implementing it that way imo

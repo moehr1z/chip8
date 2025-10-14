@@ -9,16 +9,20 @@ with Random_Numbers;
 
 package body Instructions is
    procedure Step is
-      O : Opcode;
+      O : constant Opcode := Fetch;
    begin
-      Fetch (O);
+      Increment_Program_Counter;
       Execute (O);
    end Step;
 
-   procedure Fetch (O : out Opcode) is
+   function Fetch return Opcode is
+      First_Byte  : constant Memory_Word := Load (Get_Program_Counter);
+      Second_Byte : constant Memory_Word := Load (Get_Program_Counter + 1);
+      Code        : constant Opcode :=
+        Opcode
+          (Integer (First_Byte * Memory_Word'Last) + Integer (Second_Byte));
    begin
-      null;
-
+      return Code;
    end Fetch;
 
    procedure Execute (O : Opcode) is
