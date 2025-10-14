@@ -7,3 +7,8 @@ maintainers = ["moehr1z <mooehr1z@gmail.com>"]
 licenses = "MIT"
 website = ""
 tags = []
+
+[build-switches]
+"*".style_checks = "No"
+"*".ada_Version = "Ada2022"
+
