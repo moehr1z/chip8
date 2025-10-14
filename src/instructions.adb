@@ -20,7 +20,8 @@ package body Instructions is
       Second_Byte : constant Memory_Word := Load (Get_Program_Counter + 1);
       Code        : constant Opcode :=
         Opcode
-          (Integer (First_Byte * Memory_Word'Last) + Integer (Second_Byte));
+          ((Integer (First_Byte) * Integer (Memory_Word'Last) + 1)
+           + Integer (Second_Byte));
    begin
       return Code;
    end Fetch;
