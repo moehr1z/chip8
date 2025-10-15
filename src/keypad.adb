@@ -1,19 +1,19 @@
 with Ada.Text_IO;
 
 package body Keypad is
-   function Key_Is_Pressed (Key : Keypad_Key) return Boolean is
+   procedure Key_Is_Pressed (Key : Keypad_Key; Is_Pressed : out Boolean) is
       Input     : Character;
       Available : Boolean;
    begin
       Ada.Text_IO.Get_Immediate (Input, Available);
       if Available and then Input = Keymap (Key) then
-         return True;
+         Is_Pressed := True;
       else
-         return False;
+         Is_Pressed := False;
       end if;
    end Key_Is_Pressed;
 
-   function Wait_For_Keypress return Keypad_Key is
+   procedure Wait_For_Keypress (Output_Key : out Keypad_Key) is
       Input : Character;
    begin
       -- loops until a valid key is pressed
@@ -21,7 +21,8 @@ package body Keypad is
          Ada.Text_IO.Get_Immediate (Input);
          for Key in Keymap'Range loop
             if Input = Keymap (Key) then
-               return Key;
+               Output_Key := Key;
+               return;
             end if;
          end loop;
       end loop;

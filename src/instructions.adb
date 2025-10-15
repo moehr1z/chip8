@@ -295,17 +295,21 @@ package body Instructions is
    end Handle_Rnd_Vx_Byte;
 
    procedure Handle_Skp_Vx (Register_1 : General_Register_Number) is
-      Key : constant Register_Word := Get_General_Register (Register_1);
+      Key        : constant Register_Word := Get_General_Register (Register_1);
+      Is_Pressed : Boolean;
    begin
-      if Keypad.Key_Is_Pressed (Keypad.Keypad_Key (Key)) then
+      Keypad.Key_Is_Pressed (Keypad.Keypad_Key (Key), Is_Pressed);
+      if Is_Pressed then
          Increment_Program_Counter;
       end if;
    end Handle_Skp_Vx;
 
    procedure Handle_Sknp_Vx (Register_1 : General_Register_Number) is
-      Key : constant Register_Word := Get_General_Register (Register_1);
+      Key        : constant Register_Word := Get_General_Register (Register_1);
+      Is_Pressed : Boolean;
    begin
-      if not Keypad.Key_Is_Pressed (Keypad.Keypad_Key (Key)) then
+      Keypad.Key_Is_Pressed (Keypad.Keypad_Key (Key), Is_Pressed);
+      if not Is_Pressed then
          Increment_Program_Counter;
       end if;
    end Handle_Sknp_Vx;
@@ -317,8 +321,9 @@ package body Instructions is
    end Handle_Ld_Vx_Dt;
 
    procedure Handle_Ld_Vx_K (Register_1 : General_Register_Number) is
-      Key : constant Keypad.Keypad_Key := Keypad.Wait_For_Keypress;
+      Key : Keypad.Keypad_Key;
    begin
+      Keypad.Wait_For_Keypress (Key);
       Set_General_Register (Register_1, Register_Word (Key));
    end Handle_Ld_Vx_K;
 
