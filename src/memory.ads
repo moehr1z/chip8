@@ -8,12 +8,13 @@ package Memory is
 
    function Load (A : Address) return Memory_Word
    with Pre => A in User_Address'Range or else A in Font_Address'Range;
+
    procedure Store (A : User_Address; W : Memory_Word)
    with Post => Load (A) = W;
 
    procedure Load_Program (File_Name : String);
    procedure Load_Font;  -- Loads the default hex font to the Fonts_Space
 private
-   Data_Space : array (User_Address) of Memory_Word := (others => 0);
-   Font_Space : array (Font_Address) of Memory_Word := (others => 0);
+   Data_Space : array (User_Address) of Memory_Word := [others => 0];
+   Font_Space : array (Font_Address) of Memory_Word := [others => 0];
 end Memory;
