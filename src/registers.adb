@@ -16,11 +16,7 @@ package body Registers is
       Set_General_Register (Number, After_Value);
 
       -- Overflow
-      if After_Value < Pre_Value then
-         Set_VF (True);
-      else
-         Set_VF (False);
-      end if;
+      Set_VF (After_Value < Pre_Value);
    end Add_General_Register;
 
    procedure Sub_General_Register
@@ -32,11 +28,7 @@ package body Registers is
       Set_General_Register (Number, After_Value);
 
       -- Underflow
-      if After_Value > Pre_Value then
-         Set_VF (False);
-      else
-         Set_VF (True);
-      end if;
+      Set_VF (After_Value > Pre_Value);
    end Sub_General_Register;
 
    procedure SubN_General_Register
@@ -49,20 +41,13 @@ package body Registers is
       Set_General_Register (Target, After_Value);
 
       -- Underflow
-      if After_Value > Pre_Value then
-         Set_VF (False);
-      else
-         Set_VF (True);
-      end if;
+      Set_VF (After_Value > Pre_Value);
    end SubN_General_Register;
 
    procedure Shift_Left_General_Register (Number : General_Register_Number) is
       Value : constant Register_Word := Get_General_Register (Number);
    begin
-      if (Value and Register_Word (Register_Word'Modulus / 2)) = 1 then
-         -- MSB
-         Set_VF (True);
-      end if;
+      Set_VF ((Value and Register_Word (Register_Word'Modulus / 2)) = 1);
 
       Set_General_Register (Number, Value * 2);
    end Shift_Left_General_Register;
@@ -70,10 +55,7 @@ package body Registers is
    procedure Shift_Right_General_Register (Number : General_Register_Number) is
       Value : constant Register_Word := Get_General_Register (Number);
    begin
-      if (Value and 1) = 1 then
-         -- LSB
-         Set_VF (True);
-      end if;
+      Set_VF ((Value and 1) = 1);
 
       Set_General_Register (Number, Value / 2);
    end Shift_Right_General_Register;
