@@ -12,3 +12,5 @@ tags = []
 "*".style_checks = "No"
 "*".ada_Version = "Ada2022"
 
+[[depends-on]]
+sdlada = "^2.5.20"
