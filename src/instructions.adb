@@ -1,7 +1,7 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Conversions;
 with Display;
-with Sprite;
+with Sprites;
 with Stack;
 with Timers;
 with Keypad;
@@ -355,7 +355,7 @@ package body Instructions is
         Get_General_Register (Register_1);
       Sprite_Address : constant Font_Address :=
         Memory.Font_Address'First
-        + Address ((Value * Sprite.Hex_Sprite'Length));
+        + Address ((Value * Sprites.Hex_Sprite'Length));
    begin
       Set_Address_Register (Sprite_Address);
    end Handle_Ld_F_Vx;
@@ -504,7 +504,8 @@ package body Instructions is
    begin
       Display.Draw_Sprite
         (Location => Get_Address_Register,
-         Size     => Positive (Sprite_Size),
+         Size     =>
+           Sprites.Sprite_Row_Number (Sprite_Size),   -- TODO: Check range
          X_Pos    => X_Pos,
          Y_Pos    => Y_Pos);
    end Handle_Drw_Vx_Vy_Nibble;

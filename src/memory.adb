@@ -1,5 +1,5 @@
 with Ada.Sequential_IO;
-with Sprite; use Sprite;
+with Sprites; use Sprites;
 
 package body Memory is
    function Load (A : Address) return Memory_Word is
