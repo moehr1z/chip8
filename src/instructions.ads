@@ -10,13 +10,11 @@ package Instructions is
      2; -- 2 Memory_Words per Instruction
    type Opcode is mod 2**(Instruction_Length * 8);
 
-   procedure Step;  --  does fetch, decode & execute
-
    package Instruction_Bounded_String is new
      Ada.Strings.Bounded.Generic_Bounded_Length (Max => 100);
    use Instruction_Bounded_String;
 
-   type Instruction_Error is (Unknown_Opcode, Execution_Error);
+   type Instruction_Error is (Opcode_Error, Execution_Error);
 
    type Instruction_Result (Success : Boolean := True) is record
       case Success is
@@ -30,10 +28,13 @@ package Instructions is
       end case;
    end record;
 
+   procedure Step
+     (Result : out Instruction_Result);  --  does fetch, decode & execute
+
 private
    Current_Opcode : Opcode := Opcode'First;
 
-   subtype NNN is User_Address;
+   type NNN is mod 2**12;
    type N is mod 2**4;
    subtype Nibble is N;
    type X is mod 2**4;
@@ -52,14 +53,17 @@ private
 
    function Fetch return Opcode;
    procedure Execute
-     (O :
-        Opcode);   -- Conceptionally decode and execute are two different steps, but there is no real advantage of implementing it that way imo
+     (O      : Opcode;
+      Result :
+        out Instruction_Result);   -- Conceptionally decode and execute are two different steps, but there is no real advantage of implementing it that way imo
 
    -- helper function to generate an error when you can't increment the program counter (can happen at many places)
    function Generate_Program_Counter_Error return Instruction_Result;
 
    -- same but when an address is not in user or font address space
    function Generate_Address_Bounds_Error return Instruction_Result;
+
+   function Generate_Unknown_Opcode_Error return Instruction_Result;
 
    -- Instruction handlers
    procedure Handle_Cls;

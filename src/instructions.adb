@@ -8,11 +8,11 @@ with Keypad;
 with Random_Numbers;
 
 package body Instructions is
-   procedure Step is
+   procedure Step (Result : out Instruction_Result) is
       O : constant Opcode := Fetch;
    begin
       Increment_Program_Counter;
-      Execute (O);
+      Execute (O, Result);
    end Step;
 
    function Fetch return Opcode is
@@ -27,9 +27,8 @@ package body Instructions is
       return Code;
    end Fetch;
 
-   procedure Execute (O : Opcode) is
-      I      : constant Instruction := To_Instruction (O);
-      Result : Instruction_Result;
+   procedure Execute (O : Opcode; Result : out Instruction_Result) is
+      I : constant Instruction := To_Instruction (O);
    begin
       case O and 16#F000# is
          when 16#0000# =>
@@ -65,8 +64,7 @@ package body Instructions is
                   General_Register_Number (I.Y_Value),
                   Result);
             else
-               -- TODO: handle unknown instruction
-               null;
+               Result := Generate_Unknown_Opcode_Error;
             end if;
 
          when 16#6000# =>
@@ -121,8 +119,7 @@ package body Instructions is
                   Handle_Shl_Vx (General_Register_Number (I.X_Value));
 
                when others =>
-                  -- TODO: handle unknown instruction
-                  null;
+                  Result := Generate_Unknown_Opcode_Error;
             end case;
 
          when 16#9000# =>
@@ -157,8 +154,7 @@ package body Instructions is
                   Handle_Sknp_Vx (General_Register_Number (I.X_Value), Result);
 
                when others =>
-                  -- TODO: handle unknown instruction
-                  null;
+                  Result := Generate_Unknown_Opcode_Error;
             end case;
 
          when 16#F000# =>
@@ -192,13 +188,11 @@ package body Instructions is
                   Handle_Ld_Vx_I (General_Register_Number (I.X_Value), Result);
 
                when others =>
-                  -- TODO: handle unknown instruction
-                  null;
+                  Result := Generate_Unknown_Opcode_Error;
             end case;
 
          when others =>
-            -- TODO: handle unknown instruction
-            null;
+            Result := Generate_Unknown_Opcode_Error;
       end case;
    end Execute;
 
@@ -232,6 +226,15 @@ package body Instructions is
            To_Bounded_String ("Address out of user or font space bounds"),
          Code    => Current_Opcode);
    end Generate_Address_Bounds_Error;
+
+   function Generate_Unknown_Opcode_Error return Instruction_Result is
+   begin
+      return
+        (Success => False,
+         Error   => Opcode_Error,
+         Message => To_Bounded_String ("Unknown opcode"),
+         Code    => Current_Opcode);
+   end Generate_Unknown_Opcode_Error;
 
    -- Instruction handlers
    --
