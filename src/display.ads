@@ -8,7 +8,7 @@ with SDL.Video.Renderers;
 
 package Display is
    package Display_Bounded_String is new
-     Ada.Strings.Bounded.Generic_Bounded_Length (Max => 15);
+     Ada.Strings.Bounded.Generic_Bounded_Length (Max => 100);
    use Display_Bounded_String;
 
    type Display_Error is (SDL_Error);
