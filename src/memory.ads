@@ -14,6 +14,9 @@ package Memory is
 
    procedure Load_Program (File_Name : String);
    procedure Load_Font;  -- Loads the default hex font to the Fonts_Space
+
+   function Is_User_Or_Font_Address (Value : Integer) return Boolean;
+   function Is_User_Address (Value : Integer) return Boolean;
 private
    Data_Space : array (User_Address) of Memory_Word := [others => 0];
    Font_Space : array (Font_Address) of Memory_Word := [others => 0];

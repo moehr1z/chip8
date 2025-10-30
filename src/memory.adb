@@ -49,4 +49,29 @@ package body Memory is
          end;
       end loop;
    end Load_Font;
+
+   function Is_User_Or_Font_Address (Value : Integer) return Boolean is
+   begin
+      if (Value < Integer (User_Address'First)
+          or Value > Integer (User_Address'Last))
+        and (Value < Integer (Font_Address'First)
+             or Value > Integer (Font_Address'Last))
+      then
+         return False;
+      else
+         return True;
+      end if;
+   end Is_User_Or_Font_Address;
+
+   function Is_User_Address (Value : Integer) return Boolean is
+   begin
+      if Value < Integer (User_Address'First)
+        or Value > Integer (User_Address'Last)
+      then
+         return False;
+      else
+         return True;
+      end if;
+
+   end Is_User_Address;
 end Memory;
