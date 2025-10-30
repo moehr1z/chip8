@@ -1,6 +1,6 @@
 package Memory is
    type Memory_Word is mod 2**8;
-   type Address is range 0 .. 16#FFF#;
+   type Address is mod 2**12;
    subtype User_Address is
      Address range 16#200# .. 16#FFF#;  -- Program address space
    subtype Font_Address is
