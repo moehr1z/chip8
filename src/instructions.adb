@@ -23,11 +23,13 @@ package body Instructions is
           ((Integer (First_Byte) * Integer (Memory_Word'Last) + 1)
            + Integer (Second_Byte));
    begin
+      Current_Opcode := Code;
       return Code;
    end Fetch;
 
    procedure Execute (O : Opcode) is
-      I : constant Instruction := To_Instruction (O);
+      I      : constant Instruction := To_Instruction (O);
+      Result : Instruction_Result;
    begin
       case O and 16#F000# is
          when 16#0000# =>
@@ -36,7 +38,7 @@ package body Instructions is
                   Handle_Cls;
 
                when 16#00EE# =>
-                  Handle_Ret;
+                  Handle_Ret (Result);
 
                when others =>
                   Handle_Sys_Addr (User_Address (I.NNN_Value));
@@ -46,21 +48,22 @@ package body Instructions is
             Handle_Jp_Addr (User_Address (I.NNN_Value));
 
          when 16#2000# =>
-            Handle_Call_Addr (User_Address (I.NNN_Value));
+            Handle_Call_Addr (User_Address (I.NNN_Value), Result);
 
          when 16#3000# =>
             Handle_Se_Vx_Byte
-              (General_Register_Number (I.X_Value), Byte (I.KK_Value));
+              (General_Register_Number (I.X_Value), Byte (I.KK_Value), Result);
 
          when 16#4000# =>
             Handle_Sne_Vx_Byte
-              (General_Register_Number (I.X_Value), Byte (I.KK_Value));
+              (General_Register_Number (I.X_Value), Byte (I.KK_Value), Result);
 
          when 16#5000# =>
             if (O and 16#000F#) = 0 then
                Handle_Se_Vx_Vy
                  (General_Register_Number (I.X_Value),
-                  General_Register_Number (I.Y_Value));
+                  General_Register_Number (I.Y_Value),
+                  Result);
             else
                -- TODO: handle unknown instruction
                null;
@@ -125,13 +128,14 @@ package body Instructions is
          when 16#9000# =>
             Handle_Sne_Vx_Vy
               (General_Register_Number (I.X_Value),
-               General_Register_Number (I.Y_Value));
+               General_Register_Number (I.Y_Value),
+               Result);
 
          when 16#A000# =>
-            Handle_Ld_I_Addr (Address (I.NNN_Value));
+            Handle_Ld_I_Addr (Address (I.NNN_Value), Result);
 
          when 16#B000# =>
-            Handle_Jp_V0_Addr (User_Address (I.NNN_Value));
+            Handle_Jp_V0_Addr (User_Address (I.NNN_Value), Result);
 
          when 16#C000# =>
             Handle_Rnd_Vx_Byte
@@ -141,15 +145,16 @@ package body Instructions is
             Handle_Drw_Vx_Vy_Nibble
               (General_Register_Number (I.X_Value),
                General_Register_Number (I.Y_Value),
-               Nibble (I.N_Value));
+               Nibble (I.N_Value),
+               Result);
 
          when 16#E000# =>
             case O and 16#00FF# is
                when 16#009E# =>
-                  Handle_Skp_Vx (General_Register_Number (I.X_Value));
+                  Handle_Skp_Vx (General_Register_Number (I.X_Value), Result);
 
                when 16#00A1# =>
-                  Handle_Sknp_Vx (General_Register_Number (I.X_Value));
+                  Handle_Sknp_Vx (General_Register_Number (I.X_Value), Result);
 
                when others =>
                   -- TODO: handle unknown instruction
@@ -171,19 +176,20 @@ package body Instructions is
                   Handle_Ld_St_Vx (General_Register_Number (I.X_Value));
 
                when 16#001E# =>
-                  Handle_Add_I_Vx (General_Register_Number (I.X_Value));
+                  Handle_Add_I_Vx
+                    (General_Register_Number (I.X_Value), Result);
 
                when 16#0029# =>
-                  Handle_Ld_F_Vx (General_Register_Number (I.X_Value));
+                  Handle_Ld_F_Vx (General_Register_Number (I.X_Value), Result);
 
                when 16#0033# =>
                   Handle_Ld_B_Vx (General_Register_Number (I.X_Value));
 
                when 16#0055# =>
-                  Handle_Ld_I_Vx (General_Register_Number (I.X_Value));
+                  Handle_Ld_I_Vx (General_Register_Number (I.X_Value), Result);
 
                when 16#0065# =>
-                  Handle_Ld_Vx_I (General_Register_Number (I.X_Value));
+                  Handle_Ld_Vx_I (General_Register_Number (I.X_Value), Result);
 
                when others =>
                   -- TODO: handle unknown instruction
@@ -206,6 +212,27 @@ package body Instructions is
       return (N_Value, NNN_Value, X_Value, Y_Value, KK_Value);
    end To_Instruction;
 
+   function Generate_Program_Counter_Error return Instruction_Result is
+   begin
+      return
+        (Success => False,
+         Error   => Execution_Error,
+         Message =>
+           To_Bounded_String
+             ("Cannot increase program counter because it already points to the last user address"),
+         Code    => Current_Opcode);
+   end Generate_Program_Counter_Error;
+
+   function Generate_Address_Bounds_Error return Instruction_Result is
+   begin
+      return
+        (Success => False,
+         Error   => Execution_Error,
+         Message =>
+           To_Bounded_String ("Address out of user or font space bounds"),
+         Code    => Current_Opcode);
+   end Generate_Address_Bounds_Error;
+
    -- Instruction handlers
    --
    --
@@ -214,9 +241,18 @@ package body Instructions is
       Display.Clear;
    end Handle_Cls;
 
-   procedure Handle_Ret is
+   procedure Handle_Ret (Result : out Instruction_Result) is
       Return_Address : User_Address;
    begin
+      if Stack.Empty then
+         Result :=
+           (Success => False,
+            Error   => Execution_Error,
+            Message => To_Bounded_String ("Stack Empty"),
+            Code    => Current_Opcode);
+         return;
+      end if;
+
       Stack.Pop (Return_Address);
       Set_Program_Counter (Return_Address);
    end Handle_Ret;
@@ -234,43 +270,82 @@ package body Instructions is
       Set_Program_Counter (Target_Address);
    end Handle_Jp_Addr;
 
-   procedure Handle_Call_Addr (Target_Address : User_Address) is
+   procedure Handle_Call_Addr
+     (Target_Address : User_Address; Result : out Instruction_Result) is
    begin
+      if Stack.Full then
+         Result :=
+           (Success => False,
+            Error   => Execution_Error,
+            Message => To_Bounded_String ("Stack Full"),
+            Code    => Current_Opcode);
+         return;
+      end if;
+
       Stack.Push (Get_Program_Counter);
       Set_Program_Counter (Target_Address);
    end Handle_Call_Addr;
 
-   -- TODO: check if it fits
-   procedure Handle_Jp_V0_Addr (Target_Address : User_Address) is
+   procedure Handle_Jp_V0_Addr
+     (Target_Address : User_Address; Result : out Instruction_Result)
+   is
       Value         : constant Register_Word := Get_General_Register (0);
-      Final_Address : constant User_Address :=
-        User_Address (Positive (Target_Address) + Positive (Value));
+      Final_Address : constant Integer :=
+        Integer (Target_Address) + Integer (Value);
    begin
-      Set_Program_Counter (Final_Address);
+      if not Memory.Is_User_Address (Final_Address) then
+         Result := Generate_Address_Bounds_Error;
+         return;
+      end if;
+
+      Set_Program_Counter (User_Address (Final_Address));
    end Handle_Jp_V0_Addr;
 
-   procedure Handle_Ld_I_Addr (Target_Address : Address) is
+   procedure Handle_Ld_I_Addr
+     (Target_Address : Address; Result : out Instruction_Result) is
    begin
+      if not Memory.Is_User_Or_Font_Address (Integer (Target_Address)) then
+         Result := Generate_Address_Bounds_Error;
+         return;
+      end if;
+
       Set_Address_Register (Target_Address);
    end Handle_Ld_I_Addr;
 
-   procedure Handle_Se_Vx_Byte (Register_1 : General_Register_Number; B : Byte)
+   procedure Handle_Se_Vx_Byte
+     (Register_1 : General_Register_Number;
+      B          : Byte;
+      Result     : out Instruction_Result)
    is
       Value : constant Register_Word := Get_General_Register (Register_1);
    begin
       if Byte (Value) = B then
+         if Get_Program_Counter = User_Address'Last then
+            Result := Generate_Program_Counter_Error;
+            return;
+         end if;
+
          Increment_Program_Counter;
       end if;
+
    end Handle_Se_Vx_Byte;
 
    procedure Handle_Sne_Vx_Byte
-     (Register_1 : General_Register_Number; B : Byte)
+     (Register_1 : General_Register_Number;
+      B          : Byte;
+      Result     : out Instruction_Result)
    is
       Value : constant Register_Word := Get_General_Register (Register_1);
    begin
       if Byte (Value) /= B then
+         if Get_Program_Counter = User_Address'Last then
+            Result := Generate_Program_Counter_Error;
+            return;
+         end if;
+
          Increment_Program_Counter;
       end if;
+
    end Handle_Sne_Vx_Byte;
 
    procedure Handle_Ld_Vx_Byte (Register_1 : General_Register_Number; B : Byte)
@@ -282,7 +357,8 @@ package body Instructions is
    procedure Handle_Add_Vx_Byte
      (Register_1 : General_Register_Number; B : Byte) is
    begin
-      Add_General_Register (Register_1, Register_Word (B));
+      Set_General_Register
+        (Register_1, Get_General_Register (Register_1) + Register_Word (B));
    end Handle_Add_Vx_Byte;
 
    procedure Handle_Rnd_Vx_Byte
@@ -294,24 +370,39 @@ package body Instructions is
          and Register_Word (B));
    end Handle_Rnd_Vx_Byte;
 
-   procedure Handle_Skp_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Skp_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result)
+   is
       Key        : constant Register_Word := Get_General_Register (Register_1);
       Is_Pressed : Boolean;
    begin
       Keypad.Key_Is_Pressed (Keypad.Keypad_Key (Key), Is_Pressed);
       if Is_Pressed then
+         if Get_Program_Counter = User_Address'Last then
+            Result := Generate_Program_Counter_Error;
+            return;
+         end if;
+
          Increment_Program_Counter;
       end if;
    end Handle_Skp_Vx;
 
-   procedure Handle_Sknp_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Sknp_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result)
+   is
       Key        : constant Register_Word := Get_General_Register (Register_1);
       Is_Pressed : Boolean;
    begin
       Keypad.Key_Is_Pressed (Keypad.Keypad_Key (Key), Is_Pressed);
       if not Is_Pressed then
+         if Get_Program_Counter = User_Address'Last then
+            Result := Generate_Program_Counter_Error;
+            return;
+         end if;
+
          Increment_Program_Counter;
       end if;
+
    end Handle_Sknp_Vx;
 
    procedure Handle_Ld_Vx_Dt (Register_1 : General_Register_Number) is
@@ -339,41 +430,64 @@ package body Instructions is
       Timers.Set_Sound_Timer (Timers.Timer (Value));
    end Handle_Ld_St_Vx;
 
-   -- TODO: check if it fits in User_Address
-   procedure Handle_Add_I_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Add_I_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result)
+   is
       Value_R1               : constant Register_Word :=
         Get_General_Register (Register_1);
       Value_Address_Register : constant Address := Get_Address_Register;
-      Final_Address          : constant Address :=
-        User_Address (Positive (Value_Address_Register) + Positive (Value_R1));
+      Final_Address          : constant Integer :=
+        Integer (Value_Address_Register) + Integer (Value_R1);
    begin
-      Set_Address_Register (Final_Address);
+      if not Memory.Is_User_Or_Font_Address (Final_Address) then
+         Result := Generate_Address_Bounds_Error;
+         return;
+      end if;
+
+      Set_Address_Register (Address (Final_Address));
    end Handle_Add_I_Vx;
 
-   procedure Handle_Ld_F_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Ld_F_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result)
+   is
       Value          : constant Register_Word :=
         Get_General_Register (Register_1);
-      Sprite_Address : constant Font_Address :=
-        Memory.Font_Address'First
-        + Address ((Value * Sprites.Hex_Sprite'Length));
+      Sprite_Address : constant Integer :=
+        Integer (Memory.Font_Address'First)
+        + Integer ((Value * Sprites.Hex_Sprite'Length));
    begin
-      Set_Address_Register (Sprite_Address);
+      if not Memory.Is_User_Or_Font_Address (Sprite_Address) then
+         Result := Generate_Address_Bounds_Error;
+         return;
+      end if;
+
+      Set_Address_Register (Address (Sprite_Address));
    end Handle_Ld_F_Vx;
 
    procedure Handle_Ld_B_Vx (Register_1 : General_Register_Number) is
       BCD_Value              : constant Conversions.BCD :=
         Conversions.To_BCD (Integer (Get_General_Register (Register_1)));
-      Address_Register_Value : constant User_Address := Get_Address_Register;
+      Address_Register_Value : constant Address := Get_Address_Register;
    begin
       Memory.Store (Address_Register_Value, Memory_Word (BCD_Value (1)));
       Memory.Store (Address_Register_Value + 1, Memory_Word (BCD_Value (2)));
       Memory.Store (Address_Register_Value + 2, Memory_Word (BCD_Value (3)));
    end Handle_Ld_B_Vx;
 
-   -- TODO: precodition that there's enough space
-   procedure Handle_Ld_I_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Ld_I_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result)
+   is
       Current_Address : Address := Get_Address_Register;
    begin
+      if not Memory.Is_User_Or_Font_Address
+               (Integer (Current_Address)
+                + Integer
+                    (Register_1))   -- This is the address we will finish on
+      then
+         Result := Generate_Address_Bounds_Error;
+         return;
+      end if;
+
       for Register in General_Register_Number'First .. Register_1 loop
          Memory.Store
            (Current_Address, Memory_Word (Get_General_Register (Register)));
@@ -381,9 +495,20 @@ package body Instructions is
       end loop;
    end Handle_Ld_I_Vx;
 
-   procedure Handle_Ld_Vx_I (Register_1 : General_Register_Number) is
+   procedure Handle_Ld_Vx_I
+     (Register_1 : General_Register_Number; Result : out Instruction_Result)
+   is
       Current_Address : Address := Get_Address_Register;
    begin
+      if not Memory.Is_User_Or_Font_Address
+               (Integer (Current_Address)
+                + Integer
+                    (Register_1))   -- This is the address we will finish on
+      then
+         Result := Generate_Address_Bounds_Error;
+         return;
+      end if;
+
       for Register in General_Register_Number'First .. Register_1 loop
          Set_General_Register
            (Register, Register_Word (Memory.Load (Current_Address)));
@@ -393,74 +518,69 @@ package body Instructions is
 
    procedure Handle_Se_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number)
-   is
-      Value_R1 : constant Register_Word := Get_General_Register (Register_1);
-      Value_R2 : constant Register_Word := Get_General_Register (Register_2);
+      Register_2 : General_Register_Number;
+      Result     : out Instruction_Result) is
    begin
-      if Value_R1 = Value_R2 then
+      if Get_General_Register (Register_1) = Get_General_Register (Register_2)
+      then
+         if Get_Program_Counter = User_Address'Last then
+            Result := Generate_Program_Counter_Error;
+            return;
+         end if;
+
          Increment_Program_Counter;
       end if;
    end Handle_Se_Vx_Vy;
 
    procedure Handle_Ld_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number)
-   is
-      Value_R2 : constant Register_Word := Get_General_Register (Register_2);
+      Register_2 : General_Register_Number) is
    begin
-      Set_General_Register (Register_1, Value_R2);
+      Set_General_Register (Register_1, Get_General_Register (Register_2));
    end Handle_Ld_Vx_Vy;
 
    procedure Handle_Or_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number)
-   is
-      Value_R1 : constant Register_Word := Get_General_Register (Register_1);
-      Value_R2 : constant Register_Word := Get_General_Register (Register_2);
-      Result   : constant Register_Word := Value_R1 or Value_R2;
+      Register_2 : General_Register_Number) is
    begin
-      Set_General_Register (Register_1, Result);
+      Set_General_Register
+        (Register_1,
+         Get_General_Register (Register_1)
+         or Get_General_Register (Register_2));
    end Handle_Or_Vx_Vy;
 
    procedure Handle_And_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number)
-   is
-      Value_R1 : constant Register_Word := Get_General_Register (Register_1);
-      Value_R2 : constant Register_Word := Get_General_Register (Register_2);
-      Result   : constant Register_Word := Value_R1 and Value_R2;
+      Register_2 : General_Register_Number) is
    begin
-      Set_General_Register (Register_1, Result);
+      Set_General_Register
+        (Register_1,
+         Get_General_Register (Register_1)
+         and Get_General_Register (Register_2));
    end Handle_And_Vx_Vy;
 
    procedure Handle_Xor_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number)
-   is
-      Value_R1 : constant Register_Word := Get_General_Register (Register_1);
-      Value_R2 : constant Register_Word := Get_General_Register (Register_2);
-      Result   : constant Register_Word := Value_R1 xor Value_R2;
+      Register_2 : General_Register_Number) is
    begin
-      Set_General_Register (Register_1, Result);
+      Set_General_Register
+        (Register_1,
+         Get_General_Register (Register_1)
+         xor Get_General_Register (Register_2));
    end Handle_Xor_Vx_Vy;
 
    procedure Handle_Add_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number)
-   is
-      Value_R2 : constant Register_Word := Get_General_Register (Register_2);
+      Register_2 : General_Register_Number) is
    begin
-      Add_General_Register (Register_1, Value_R2);
+      Add_General_Register (Register_1, Register_2);
    end Handle_Add_Vx_Vy;
 
    procedure Handle_Sub_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number)
-   is
-      Value_R2 : constant Register_Word := Get_General_Register (Register_2);
+      Register_2 : General_Register_Number) is
    begin
-      Sub_General_Register (Register_1, Value_R2);
+      Sub_General_Register (Register_1, Register_2);
    end Handle_Sub_Vx_Vy;
 
    procedure Handle_Shr_Vx (Register_1 : General_Register_Number) is
@@ -482,12 +602,16 @@ package body Instructions is
 
    procedure Handle_Sne_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number)
-   is
-      Value_R1 : constant Register_Word := Get_General_Register (Register_1);
-      Value_R2 : constant Register_Word := Get_General_Register (Register_2);
+      Register_2 : General_Register_Number;
+      Result     : out Instruction_Result) is
    begin
-      if Value_R1 /= Value_R2 then
+      if Get_General_Register (Register_1) /= Get_General_Register (Register_2)
+      then
+         if Get_Program_Counter = User_Address'Last then
+            Result := Generate_Program_Counter_Error;
+            return;
+         end if;
+
          Increment_Program_Counter;
       end if;
    end Handle_Sne_Vx_Vy;
@@ -495,17 +619,28 @@ package body Instructions is
    procedure Handle_Drw_Vx_Vy_Nibble
      (Register_1  : General_Register_Number;
       Register_2  : General_Register_Number;
-      Sprite_Size : Nibble)
+      Sprite_Size : Nibble;
+      Result      : out Instruction_Result)
    is
       X_Pos : constant Display.X_Coordinate :=
         Display.X_Coordinate (Get_General_Register (Register_1));
       Y_Pos : constant Display.Y_Coordinate :=
         Display.Y_Coordinate (Get_General_Register (Register_2));
    begin
+      if (Get_General_Register (Register_1) >= Display.Width
+          or Get_General_Register (Register_2) >= Display.Height)
+      then
+         Result :=
+           (Success => False,
+            Error   => Execution_Error,
+            Message => To_Bounded_String ("Position out of display range"),
+            Code    => Current_Opcode);
+         return;
+      end if;
+
       Display.Draw_Sprite
         (Location => Get_Address_Register,
-         Size     =>
-           Sprites.Sprite_Row_Number (Sprite_Size),   -- TODO: Check range
+         Size     => Sprites.Sprite_Row_Number (Sprite_Size),
          X_Pos    => X_Pos,
          Y_Pos    => Y_Pos);
    end Handle_Drw_Vx_Vy_Nibble;

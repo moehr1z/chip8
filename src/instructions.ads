@@ -31,6 +31,7 @@ package Instructions is
    end record;
 
 private
+   Current_Opcode : Opcode := Opcode'First;
 
    subtype NNN is User_Address;
    type N is mod 2**4;
@@ -54,20 +55,33 @@ private
      (O :
         Opcode);   -- Conceptionally decode and execute are two different steps, but there is no real advantage of implementing it that way imo
 
+   -- helper function to generate an error when you can't increment the program counter (can happen at many places)
+   function Generate_Program_Counter_Error return Instruction_Result;
+
+   -- same but when an address is not in user or font address space
+   function Generate_Address_Bounds_Error return Instruction_Result;
+
    -- Instruction handlers
    procedure Handle_Cls;
-   procedure Handle_Ret;
+   procedure Handle_Ret (Result : out Instruction_Result);
 
    procedure Handle_Sys_Addr (Target_Address : User_Address);
    procedure Handle_Jp_Addr (Target_Address : User_Address);
-   procedure Handle_Call_Addr (Target_Address : User_Address);
-   procedure Handle_Jp_V0_Addr (Target_Address : User_Address);
-   procedure Handle_Ld_I_Addr (Target_Address : Address);
+   procedure Handle_Call_Addr
+     (Target_Address : User_Address; Result : out Instruction_Result);
+   procedure Handle_Jp_V0_Addr
+     (Target_Address : User_Address; Result : out Instruction_Result);
+   procedure Handle_Ld_I_Addr
+     (Target_Address : Address; Result : out Instruction_Result);
 
    procedure Handle_Se_Vx_Byte
-     (Register_1 : General_Register_Number; B : Byte);
+     (Register_1 : General_Register_Number;
+      B          : Byte;
+      Result     : out Instruction_Result);
    procedure Handle_Sne_Vx_Byte
-     (Register_1 : General_Register_Number; B : Byte);
+     (Register_1 : General_Register_Number;
+      B          : Byte;
+      Result     : out Instruction_Result);
    procedure Handle_Ld_Vx_Byte
      (Register_1 : General_Register_Number; B : Byte);
    procedure Handle_Add_Vx_Byte
@@ -75,23 +89,30 @@ private
    procedure Handle_Rnd_Vx_Byte
      (Register_1 : General_Register_Number; B : Byte);
 
-   procedure Handle_Ld_I_Vx (Register_1 : General_Register_Number);
-   procedure Handle_Ld_Vx_I (Register_1 : General_Register_Number);
-   procedure Handle_Skp_Vx (Register_1 : General_Register_Number);
-   procedure Handle_Sknp_Vx (Register_1 : General_Register_Number);
+   procedure Handle_Ld_I_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result);
+   procedure Handle_Ld_Vx_I
+     (Register_1 : General_Register_Number; Result : out Instruction_Result);
+   procedure Handle_Skp_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result);
+   procedure Handle_Sknp_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result);
    procedure Handle_Ld_Vx_Dt (Register_1 : General_Register_Number);
    procedure Handle_Ld_Vx_K (Register_1 : General_Register_Number);
    procedure Handle_Ld_Dt_Vx (Register_1 : General_Register_Number);
    procedure Handle_Ld_St_Vx (Register_1 : General_Register_Number);
-   procedure Handle_Add_I_Vx (Register_1 : General_Register_Number);
-   procedure Handle_Ld_F_Vx (Register_1 : General_Register_Number);
+   procedure Handle_Add_I_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result);
+   procedure Handle_Ld_F_Vx
+     (Register_1 : General_Register_Number; Result : out Instruction_Result);
    procedure Handle_Ld_B_Vx (Register_1 : General_Register_Number);
    procedure Handle_Shr_Vx (Register_1 : General_Register_Number);
    procedure Handle_Shl_Vx (Register_1 : General_Register_Number);
 
    procedure Handle_Se_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number);
+      Register_2 : General_Register_Number;
+      Result     : out Instruction_Result);
    procedure Handle_Ld_Vx_Vy
      (Register_1 : General_Register_Number;
       Register_2 : General_Register_Number);
@@ -115,10 +136,12 @@ private
       Register_2 : General_Register_Number);
    procedure Handle_Sne_Vx_Vy
      (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number);
+      Register_2 : General_Register_Number;
+      Result     : out Instruction_Result);
 
    procedure Handle_Drw_Vx_Vy_Nibble
      (Register_1  : General_Register_Number;
       Register_2  : General_Register_Number;
-      Sprite_Size : Nibble);
+      Sprite_Size : Nibble;
+      Result      : out Instruction_Result);
 end Instructions;
