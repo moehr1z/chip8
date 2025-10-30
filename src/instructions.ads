@@ -1,3 +1,4 @@
+with Ada.Strings.Bounded;
 with Registers; use Registers;
 with Memory;    use Memory;
 
@@ -7,9 +8,29 @@ with Memory;    use Memory;
 package Instructions is
    Instruction_Length : constant Integer :=
      2; -- 2 Memory_Words per Instruction
-   procedure Step;  --  does fetch, decode & execute
-private
    type Opcode is mod 2**(Instruction_Length * 8);
+
+   procedure Step;  --  does fetch, decode & execute
+
+   package Instruction_Bounded_String is new
+     Ada.Strings.Bounded.Generic_Bounded_Length (Max => 100);
+   use Instruction_Bounded_String;
+
+   type Instruction_Error is (Unknown_Opcode, Execution_Error);
+
+   type Instruction_Result (Success : Boolean := True) is record
+      case Success is
+         when True =>
+            null;
+
+         when False =>
+            Error   : Instruction_Error;
+            Message : Bounded_String;
+            Code    : Opcode;
+      end case;
+   end record;
+
+private
 
    subtype NNN is User_Address;
    type N is mod 2**4;
