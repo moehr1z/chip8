@@ -8,24 +8,26 @@ package body Registers is
    end Set_General_Register;
 
    procedure Add_General_Register
-     (Number : General_Register_Number; Value : Register_Word)
+     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
    is
-      Pre_Value   : constant Register_Word := Get_General_Register (Number);
-      After_Value : constant Register_Word := Pre_Value + Value;
+      Pre_Value   : constant Register_Word := Get_General_Register (Number_1);
+      After_Value : constant Register_Word :=
+        Pre_Value + Get_General_Register (Number_2);
    begin
-      Set_General_Register (Number, After_Value);
+      Set_General_Register (Number_1, After_Value);
 
       -- Overflow
       Set_VF (After_Value < Pre_Value);
    end Add_General_Register;
 
    procedure Sub_General_Register
-     (Number : General_Register_Number; Value : Register_Word)
+     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
    is
-      Pre_Value   : constant Register_Word := Get_General_Register (Number);
-      After_Value : constant Register_Word := Pre_Value - Value;
+      Pre_Value   : constant Register_Word := Get_General_Register (Number_1);
+      After_Value : constant Register_Word :=
+        Pre_Value - Get_General_Register (Number_2);
    begin
-      Set_General_Register (Number, After_Value);
+      Set_General_Register (Number_1, After_Value);
 
       -- Underflow
       Set_VF (After_Value > Pre_Value);
@@ -95,4 +97,7 @@ package body Registers is
       end if;
       Set_General_Register (VF, Value);
    end Set_VF;
+
+   function Get_VF return Register_Word
+   is (Get_General_Register (16#F#));
 end Registers;

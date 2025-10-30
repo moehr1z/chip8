@@ -8,34 +8,49 @@ package Registers is
 
    procedure Set_General_Register
      (Number : General_Register_Number; Value : Register_Word)
-     -- Postcondition: The specified register is really set to Value and no other is modified
    with Post => Get_General_Register (Number) = Value;
-   --  TODO: how to properly express this?
-   --  and then (for all I in General_Register_Number =>
-   --              I = Number
-   --              or else (Get_General_Register (I)
-   --                       = Get_General_Register (I)'Old
-   --                       and Get_Address_Register
-   --                           = Get_Address_Register'Old));
 
-   -- TODO: conditions
    procedure Add_General_Register
-     (Number : General_Register_Number; Value : Register_Word);
+     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
+   with
+     Post =>
+       ((Integer (Get_General_Register (Number_1))
+         + Integer (Get_General_Register (Number_2))
+         > Integer (Register_Word'Last))
+        and then Get_VF = 1)
+       or else Get_VF = 0;
 
-   -- TODO: conditions
    procedure Sub_General_Register
-     (Number : General_Register_Number; Value : Register_Word);
+     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
+   with
+     Post =>
+       (Get_General_Register (Number_1) > Get_General_Register (Number_2)
+        and then Get_VF = 1)
+       or else Get_VF = 0;
 
-   -- TODO: conditions
    -- Target = Other - Target
    procedure SubN_General_Register
-     (Target : General_Register_Number; Other : General_Register_Number);
+     (Target : General_Register_Number; Other : General_Register_Number)
+   with
+     Post =>
+       (Get_General_Register (Other) > Get_General_Register (Target)
+        and then Get_VF = 1)
+       or else Get_VF = 0;
 
-   -- TODO: conditions
-   procedure Shift_Left_General_Register (Number : General_Register_Number);
+   procedure Shift_Left_General_Register (Number : General_Register_Number)
+   with
+     Post =>
+       ((Get_General_Register (Number)
+         and Register_Word (Register_Word'Modulus / 2))
+        = 1
+        and then Get_VF = 1)
+       or else Get_VF = 0;
 
-   -- TODO: conditions
-   procedure Shift_Right_General_Register (Number : General_Register_Number);
+   procedure Shift_Right_General_Register (Number : General_Register_Number)
+   with
+     Post =>
+       ((Get_General_Register (Number) and 1) = 1 and then Get_VF = 1)
+       or else Get_VF = 0;
 
    function Get_General_Register
      (Number : General_Register_Number) return Register_Word;
@@ -58,7 +73,9 @@ package Registers is
    function Get_Program_Counter return User_Address;
 
    procedure Set_VF (B : Boolean)
-   with Post => Get_General_Register (VF) = (if B then 1 else 0);
+   with Post => Get_VF = (if B then 1 else 0);
+
+   function Get_VF return Register_Word;
 
 private
    General_Registers : array (General_Register_Number) of Register_Word :=
