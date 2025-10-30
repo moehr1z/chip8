@@ -1,11 +1,16 @@
 with SDL.Events.Keyboards; use SDL.Events.Keyboards;
+with Display;
 
 package Keypad is
    type Keypad_Key is range 0 .. 16#F#;
-   procedure Key_Is_Pressed (Key : Keypad_Key; Is_Pressed : out Boolean);
-   procedure Wait_For_Keypress
-     (Output_Key :
-        out Keypad_Key); -- halts until a key is pressed, then returns it
+
+   procedure Key_Is_Pressed (Key : Keypad_Key; Is_Pressed : out Boolean)
+   with Pre => Display.Was_Initialized;
+
+   -- halts until a key is pressed, then returns it
+   procedure Wait_For_Keypress (Output_Key : out Keypad_Key)
+   with Pre => Display.Was_Initialized;
+
 private
    Latin1_Numerics_Start : Positive := 48; -- Element '0' in Latin1
    -- mapping to a regular keyboard
