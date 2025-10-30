@@ -1,29 +1,43 @@
-with Ada.Text_IO;
+with SDL.Events.Events; use SDL.Events.Events;
 
 package body Keypad is
    procedure Key_Is_Pressed (Key : Keypad_Key; Is_Pressed : out Boolean) is
-      Input     : Character;
-      Available : Boolean;
+      Current_Event : Events;
    begin
-      Ada.Text_IO.Get_Immediate (Input, Available);
-      if Available and then Input = Keymap (Key) then
-         Is_Pressed := True;
-      else
-         Is_Pressed := False;
-      end if;
+      Is_Pressed := False;
+      while Poll (Current_Event) loop
+         case Current_Event.Common.Event_Type is
+            when Key_Down =>
+               if Current_Event.Keyboard.Key_Sym.Scan_Code = Keymap (Key) then
+                  Is_Pressed := True;
+                  return;
+               end if;
+
+            when others =>
+               null;
+         end case;
+      end loop;
    end Key_Is_Pressed;
 
    procedure Wait_For_Keypress (Output_Key : out Keypad_Key) is
-      Input : Character;
+      Current_Event : Events;
    begin
       -- loops until a valid key is pressed
       loop
-         Ada.Text_IO.Get_Immediate (Input);
-         for Key in Keymap'Range loop
-            if Input = Keymap (Key) then
-               Output_Key := Key;
-               return;
-            end if;
+         while Poll (Current_Event) loop
+            case Current_Event.Common.Event_Type is
+               when Key_Down =>
+                  for Key in Keymap'Range loop
+                     if Current_Event.Keyboard.Key_Sym.Scan_Code = Keymap (Key)
+                     then
+                        Output_Key := Key;
+                        return;
+                     end if;
+                  end loop;
+
+               when others =>
+                  null;
+            end case;
          end loop;
       end loop;
    end Wait_For_Keypress;

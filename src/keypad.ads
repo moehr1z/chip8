@@ -1,4 +1,4 @@
-with Ada.Characters.Latin_1; use Ada.Characters.Latin_1;
+with SDL.Events.Keyboards; use SDL.Events.Keyboards;
 
 package Keypad is
    type Keypad_Key is range 0 .. 16#F#;
@@ -9,25 +9,25 @@ package Keypad is
 private
    Latin1_Numerics_Start : Positive := 48; -- Element '0' in Latin1
    -- mapping to a regular keyboard
-   Keymap                : array (Keypad_Key) of Character :=
+   Keymap                : array (Keypad_Key) of Scan_Codes :=
      [-- First row
-      1     => Character'Val (Latin1_Numerics_Start + 1),
-      2     => Character'Val (Latin1_Numerics_Start + 2),
-      3     => Character'Val (Latin1_Numerics_Start + 3),
-      16#C# => Character'Val (Latin1_Numerics_Start + 4),
+      1     => Scan_Code_1,
+      2     => Scan_Code_2,
+      3     => Scan_Code_3,
+      16#C# => Scan_Code_4,
       -- Second row
-      4     => LC_Q,
-      5     => LC_W,
-      6     => LC_E,
-      16#D# => LC_R,
+      4     => Scan_Code_Q,
+      5     => Scan_Code_W,
+      6     => Scan_Code_E,
+      16#D# => Scan_Code_R,
       -- Third row
-      7     => LC_A,
-      8     => LC_S,
-      9     => LC_D,
-      16#E# => LC_F,
+      7     => Scan_Code_A,
+      8     => Scan_Code_S,
+      9     => Scan_Code_D,
+      16#E# => Scan_Code_F,
       -- Fourth Row
-      16#A# => LC_A,
-      0     => LC_S,
-      16#B# => LC_D,
-      16#F# => LC_F];
+      16#A# => Scan_Code_A,
+      0     => Scan_Code_S,
+      16#B# => Scan_Code_D,
+      16#F# => Scan_Code_F];
 end Keypad;
