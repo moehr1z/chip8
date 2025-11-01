@@ -40,14 +40,14 @@ package body Instructions is
                   Handle_Ret (Result);
 
                when others =>
-                  Handle_Sys_Addr (User_Address (I.NNN_Value));
+                  Handle_Sys_Addr (Address (I.NNN_Value));
             end case;
 
          when 16#1000# =>
-            Handle_Jp_Addr (User_Address (I.NNN_Value));
+            Handle_Jp_Addr (Address (I.NNN_Value), Result);
 
          when 16#2000# =>
-            Handle_Call_Addr (User_Address (I.NNN_Value), Result);
+            Handle_Call_Addr (Address (I.NNN_Value), Result);
 
          when 16#3000# =>
             Handle_Se_Vx_Byte
@@ -260,7 +260,7 @@ package body Instructions is
       Set_Program_Counter (Return_Address);
    end Handle_Ret;
 
-   procedure Handle_Sys_Addr (Target_Address : User_Address) is
+   procedure Handle_Sys_Addr (Target_Address : Address) is
    begin
       Put_Line
         ("The SYS  instruction is only used on the old computers on which Chip-8 was originally implemented. Ignoring it. (Target_Address = "
@@ -268,14 +268,25 @@ package body Instructions is
          & ")");
    end Handle_Sys_Addr;
 
-   procedure Handle_Jp_Addr (Target_Address : User_Address) is
+   procedure Handle_Jp_Addr
+     (Target_Address : Address; Result : out Instruction_Result) is
    begin
+      if not Memory.Is_User_Address (Integer (Target_Address)) then
+         Result := Generate_Address_Bounds_Error;
+         return;
+      end if;
+
       Set_Program_Counter (Target_Address);
    end Handle_Jp_Addr;
 
    procedure Handle_Call_Addr
-     (Target_Address : User_Address; Result : out Instruction_Result) is
+     (Target_Address : Address; Result : out Instruction_Result) is
    begin
+      if not Memory.Is_User_Address (Integer (Target_Address)) then
+         Result := Generate_Address_Bounds_Error;
+         return;
+      end if;
+
       if Stack.Full then
          Result :=
            (Success => False,
@@ -290,7 +301,7 @@ package body Instructions is
    end Handle_Call_Addr;
 
    procedure Handle_Jp_V0_Addr
-     (Target_Address : User_Address; Result : out Instruction_Result)
+     (Target_Address : Address; Result : out Instruction_Result)
    is
       Value         : constant Register_Word := Get_General_Register (0);
       Final_Address : constant Integer :=

@@ -69,12 +69,13 @@ private
    procedure Handle_Cls;
    procedure Handle_Ret (Result : out Instruction_Result);
 
-   procedure Handle_Sys_Addr (Target_Address : User_Address);
-   procedure Handle_Jp_Addr (Target_Address : User_Address);
+   procedure Handle_Sys_Addr (Target_Address : Address);
+   procedure Handle_Jp_Addr
+     (Target_Address : Address; Result : out Instruction_Result);
    procedure Handle_Call_Addr
-     (Target_Address : User_Address; Result : out Instruction_Result);
+     (Target_Address : Address; Result : out Instruction_Result);
    procedure Handle_Jp_V0_Addr
-     (Target_Address : User_Address; Result : out Instruction_Result);
+     (Target_Address : Address; Result : out Instruction_Result);
    procedure Handle_Ld_I_Addr
      (Target_Address : Address; Result : out Instruction_Result);
 
