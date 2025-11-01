@@ -14,7 +14,7 @@ with GNAT.Command_Line;     use GNAT.Command_Line;
 procedure Chip8 is
    type Failure_Modes is (Shutdown, Ignore, Halt);
 
-   Rom          : Unbounded_String := To_Unbounded_String ("Test.rom");
+   Rom          : Unbounded_String := To_Unbounded_String ("Default.ch8");
    Batch_Size   : Integer := 600;
    Scaling      : Integer := 1;
    Failure_Mode : Failure_Modes := Shutdown;
@@ -26,7 +26,7 @@ begin
    -- parse command line options
    loop
       begin
-         case Getopt ("r --rom b --batch s --scaling f --fail-mode") is
+         case Getopt ("r: -rom: b: -batch: s: -scaling: f: -fail-mode:") is
             when 'r' =>
                Rom := To_Unbounded_String (Parameter);
 
