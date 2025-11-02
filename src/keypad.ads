@@ -7,7 +7,7 @@ with Registers;
 package Keypad is
    pragma Assertion_Policy (Check);
 
-   Waiting_For_Input          : Boolean := True;
+   Waiting_For_Input          : Boolean := False;
    Waiting_For_Input_Register : Registers.General_Register_Number := 0;
 
    type Keypad_Key is range 0 .. 16#F#;
