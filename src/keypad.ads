@@ -45,7 +45,7 @@ private
       9     => Scan_Code_D,
       16#E# => Scan_Code_F,
       -- Fourth Row
-      16#A# => Scan_Code_Y,
+      16#A# => Scan_Code_Z,
       0     => Scan_Code_X,
       16#B# => Scan_Code_C,
       16#F# => Scan_Code_V];
