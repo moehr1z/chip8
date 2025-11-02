@@ -56,7 +56,7 @@ package body Display is
          for X in Display_Array'Range (1) loop
             for Y in Display_Array'Range (2) loop
                if Display_Array (X, Y) = True then
-                  Renderer.Set_Draw_Colour ((255, 255, 255, 255));
+                  Renderer.Set_Draw_Colour ((0, 255, 0, 255));
                else
                   Renderer.Set_Draw_Colour ((0, 0, 0, 255));
                end if;
