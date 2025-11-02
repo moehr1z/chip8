@@ -78,8 +78,7 @@ private
      (Target_Address : Address; Result : out Instruction_Result);
    procedure Handle_Jp_V0_Addr
      (Target_Address : Address; Result : out Instruction_Result);
-   procedure Handle_Ld_I_Addr
-     (Target_Address : Address; Result : out Instruction_Result);
+   procedure Handle_Ld_I_Addr (Target_Address : Address);
 
    procedure Handle_Se_Vx_Byte
      (Register_1 : General_Register_Number;
@@ -96,10 +95,8 @@ private
    procedure Handle_Rnd_Vx_Byte
      (Register_1 : General_Register_Number; B : Byte);
 
-   procedure Handle_Ld_I_Vx
-     (Register_1 : General_Register_Number; Result : out Instruction_Result);
-   procedure Handle_Ld_Vx_I
-     (Register_1 : General_Register_Number; Result : out Instruction_Result);
+   procedure Handle_Ld_I_Vx (Register_1 : General_Register_Number);
+   procedure Handle_Ld_Vx_I (Register_1 : General_Register_Number);
    procedure Handle_Skp_Vx
      (Register_1 : General_Register_Number; Result : out Instruction_Result);
    procedure Handle_Sknp_Vx
@@ -108,10 +105,8 @@ private
    procedure Handle_Ld_Vx_K (Register_1 : General_Register_Number);
    procedure Handle_Ld_Dt_Vx (Register_1 : General_Register_Number);
    procedure Handle_Ld_St_Vx (Register_1 : General_Register_Number);
-   procedure Handle_Add_I_Vx
-     (Register_1 : General_Register_Number; Result : out Instruction_Result);
-   procedure Handle_Ld_F_Vx
-     (Register_1 : General_Register_Number; Result : out Instruction_Result);
+   procedure Handle_Add_I_Vx (Register_1 : General_Register_Number);
+   procedure Handle_Ld_F_Vx (Register_1 : General_Register_Number);
    procedure Handle_Ld_B_Vx (Register_1 : General_Register_Number);
    procedure Handle_Shr_Vx (Register_1 : General_Register_Number);
    procedure Handle_Shl_Vx (Register_1 : General_Register_Number);

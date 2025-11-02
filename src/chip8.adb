@@ -32,6 +32,7 @@ procedure Chip8 is
       for I in Registers.General_Register_Number'Range loop
          Put_Line (I'Image & ": " & Registers.Get_General_Register (I)'Image);
       end loop;
+      Put_Line ("Address Register: " & Registers.Get_Address_Register'Image);
    end Dump_State;
 begin
    -- parse command line options

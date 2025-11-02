@@ -129,7 +129,7 @@ package body Instructions is
                Result);
 
          when 16#A000# =>
-            Handle_Ld_I_Addr (Address (I.NNN_Value), Result);
+            Handle_Ld_I_Addr (Address (I.NNN_Value));
 
          when 16#B000# =>
             Handle_Jp_V0_Addr (User_Address (I.NNN_Value), Result);
@@ -171,20 +171,19 @@ package body Instructions is
                   Handle_Ld_St_Vx (General_Register_Number (I.X_Value));
 
                when 16#001E# =>
-                  Handle_Add_I_Vx
-                    (General_Register_Number (I.X_Value), Result);
+                  Handle_Add_I_Vx (General_Register_Number (I.X_Value));
 
                when 16#0029# =>
-                  Handle_Ld_F_Vx (General_Register_Number (I.X_Value), Result);
+                  Handle_Ld_F_Vx (General_Register_Number (I.X_Value));
 
                when 16#0033# =>
                   Handle_Ld_B_Vx (General_Register_Number (I.X_Value));
 
                when 16#0055# =>
-                  Handle_Ld_I_Vx (General_Register_Number (I.X_Value), Result);
+                  Handle_Ld_I_Vx (General_Register_Number (I.X_Value));
 
                when 16#0065# =>
-                  Handle_Ld_Vx_I (General_Register_Number (I.X_Value), Result);
+                  Handle_Ld_Vx_I (General_Register_Number (I.X_Value));
 
                when others =>
                   Result := Generate_Unknown_Opcode_Error;
@@ -314,14 +313,8 @@ package body Instructions is
       Set_Program_Counter (User_Address (Final_Address));
    end Handle_Jp_V0_Addr;
 
-   procedure Handle_Ld_I_Addr
-     (Target_Address : Address; Result : out Instruction_Result) is
+   procedure Handle_Ld_I_Addr (Target_Address : Address) is
    begin
-      if not Memory.Is_User_Or_Font_Address (Integer (Target_Address)) then
-         Result := Generate_Address_Bounds_Error;
-         return;
-      end if;
-
       Set_Address_Register (Target_Address);
    end Handle_Ld_I_Addr;
 
@@ -440,37 +433,23 @@ package body Instructions is
       Timers.Set_Sound_Timer (Timers.Timer (Value));
    end Handle_Ld_St_Vx;
 
-   procedure Handle_Add_I_Vx
-     (Register_1 : General_Register_Number; Result : out Instruction_Result)
-   is
+   procedure Handle_Add_I_Vx (Register_1 : General_Register_Number) is
       Value_R1               : constant Register_Word :=
         Get_General_Register (Register_1);
       Value_Address_Register : constant Address := Get_Address_Register;
       Final_Address          : constant Integer :=
         Integer (Value_Address_Register) + Integer (Value_R1);
    begin
-      if not Memory.Is_User_Or_Font_Address (Final_Address) then
-         Result := Generate_Address_Bounds_Error;
-         return;
-      end if;
-
       Set_Address_Register (Address (Final_Address));
    end Handle_Add_I_Vx;
 
-   procedure Handle_Ld_F_Vx
-     (Register_1 : General_Register_Number; Result : out Instruction_Result)
-   is
+   procedure Handle_Ld_F_Vx (Register_1 : General_Register_Number) is
       Value          : constant Register_Word :=
         Get_General_Register (Register_1);
       Sprite_Address : constant Integer :=
-        Integer (Memory.Font_Address'First)
+        Integer (Memory.Interpreter_Address'First)
         + Integer ((Value * Sprites.Hex_Sprite'Length));
    begin
-      if not Memory.Is_User_Or_Font_Address (Sprite_Address) then
-         Result := Generate_Address_Bounds_Error;
-         return;
-      end if;
-
       Set_Address_Register (Address (Sprite_Address));
    end Handle_Ld_F_Vx;
 
@@ -487,20 +466,9 @@ package body Instructions is
       end loop;
    end Handle_Ld_B_Vx;
 
-   procedure Handle_Ld_I_Vx
-     (Register_1 : General_Register_Number; Result : out Instruction_Result)
-   is
+   procedure Handle_Ld_I_Vx (Register_1 : General_Register_Number) is
       Current_Address : Address := Get_Address_Register;
    begin
-      if not Memory.Is_User_Or_Font_Address
-               (Integer (Current_Address)
-                + Integer
-                    (Register_1))   -- This is the address we will finish on
-      then
-         Result := Generate_Address_Bounds_Error;
-         return;
-      end if;
-
       for Register in General_Register_Number'First .. Register_1 loop
          Memory.Store
            (Current_Address, Memory_Word (Get_General_Register (Register)));
@@ -508,20 +476,9 @@ package body Instructions is
       end loop;
    end Handle_Ld_I_Vx;
 
-   procedure Handle_Ld_Vx_I
-     (Register_1 : General_Register_Number; Result : out Instruction_Result)
-   is
+   procedure Handle_Ld_Vx_I (Register_1 : General_Register_Number) is
       Current_Address : Address := Get_Address_Register;
    begin
-      if not Memory.Is_User_Or_Font_Address
-               (Integer (Current_Address)
-                + Integer
-                    (Register_1))   -- This is the address we will finish on
-      then
-         Result := Generate_Address_Bounds_Error;
-         return;
-      end if;
-
       for Register in General_Register_Number'First .. Register_1 loop
          Set_General_Register
            (Register, Register_Word (Memory.Load (Current_Address)));

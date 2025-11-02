@@ -8,7 +8,7 @@ package body Memory is
       if A in User_Address'Range then
          return Data_Space (A);
       else
-         return Font_Space (A);
+         return Interpreter_Space (A);
       end if;
    end Load;
 
@@ -37,25 +37,20 @@ package body Memory is
    end Load_Program;
 
    procedure Load_Font is
-      Current_Address : Font_Address := Font_Space'First;
+      Current_Address : Interpreter_Address := Interpreter_Space'First;
    begin
       for Index_Sprite in Hex_Sprites'Range loop
          declare
             Current_Sprite : constant Hex_Sprite := Hex_Sprites (Index_Sprite);
          begin
             for Index_Byte in Current_Sprite'Range loop
-               Font_Space (Current_Address) :=
+               Interpreter_Space (Current_Address) :=
                  Memory_Word (Current_Sprite (Index_Byte));
                Current_Address := Current_Address + 1;
             end loop;
          end;
       end loop;
    end Load_Font;
-
-   function Is_User_Or_Font_Address (Value : Integer) return Boolean
-   is (Value in Integer (User_Address'First) .. Integer (User_Address'Last)
-       or else Value
-               in Integer (Font_Address'First) .. Integer (Font_Address'Last));
 
    function Is_User_Address (Value : Integer) return Boolean
    is (Value in Integer (User_Address'First) .. Integer (User_Address'Last));

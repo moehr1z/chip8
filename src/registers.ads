@@ -59,9 +59,7 @@ package Registers is
      (Number : General_Register_Number) return Register_Word;
 
    procedure Set_Address_Register (Value : Address)
-   with
-     Pre  => Value in User_Address'Range or else Value in Font_Address'Range,
-     Post => Get_Address_Register = Value;
+   with Post => Get_Address_Register = Value;
 
    function Get_Address_Register return Address;
 
