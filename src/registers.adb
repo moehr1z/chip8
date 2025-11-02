@@ -44,7 +44,7 @@ package body Registers is
    procedure Shift_Left_General_Register (Number : General_Register_Number) is
       Value : constant Register_Word := Get_General_Register (Number);
    begin
-      Set_VF ((Value and Register_Word (Register_Word'Modulus / 2)) = 1);
+      Set_VF ((Value and Register_Word (Register_Word'Modulus / 2)) /= 0);
 
       Set_General_Register (Number, Value * 2);
    end Shift_Left_General_Register;
