@@ -104,50 +104,51 @@ begin
          Next_Cycle := Next_Cycle + Period;
 
          -- Handle SDL inputs
-         loop
-            while Poll (Current_Event) loop
-               case Current_Event.Common.Event_Type is
-                  when Key_Down =>
-                     declare
-                        Key : Keypad.Key_Option :=
-                          Keypad.Scan_Code_To_Key
-                            (Current_Event.Keyboard.Key_Sym.Scan_Code);
-                     begin
-                        if Key.Is_Some then
-                           Keypad.Pressed_Keys (Key.Key) := True;
+         while Poll (Current_Event) loop
+            case Current_Event.Common.Event_Type is
+               when Key_Down =>
+                  declare
+                     Key : Keypad.Key_Option :=
+                       Keypad.Scan_Code_To_Key
+                         (Current_Event.Keyboard.Key_Sym.Scan_Code);
+                  begin
+                     if Key.Is_Some then
+                        Keypad.Pressed_Keys (Key.Key) := True;
+                     end if;
+                  end;
 
-                           if Keypad.Waiting_For_Input then
-                              Registers.Set_General_Register
-                                (Keypad.Waiting_For_Input_Register,
-                                 Registers.Register_Word (Key.Key));
-                              Keypad.Waiting_For_Input := False;
-                           end if;
-                        end if;
-                     end;
+               when Key_Up =>
+                  declare
+                     Key : Keypad.Key_Option :=
+                       Keypad.Scan_Code_To_Key
+                         (Current_Event.Keyboard.Key_Sym.Scan_Code);
+                  begin
+                     if Keypad.Waiting_For_Input then
+                        Registers.Set_General_Register
+                          (Keypad.Waiting_For_Input_Register,
+                           Registers.Register_Word (Key.Key));
+                        Keypad.Waiting_For_Input := False;
+                     end if;
 
-                  when Key_Up =>
-                     declare
-                        Key : Keypad.Key_Option :=
-                          Keypad.Scan_Code_To_Key
-                            (Current_Event.Keyboard.Key_Sym.Scan_Code);
-                     begin
-                        if Key.Is_Some then
-                           Keypad.Pressed_Keys (Key.Key) := False;
-                        end if;
-                     end;
+                     if Key.Is_Some then
+                        Keypad.Pressed_Keys (Key.Key) := False;
+                     end if;
+                  end;
 
-                  when SDL.Events.Quit =>
-                     return;
+               when SDL.Events.Quit =>
+                  return;
 
-                  when others =>
-                     null;
-               end case;
-            end loop;
-
-            exit when not Keypad.Waiting_For_Input;
+               when others =>
+                  null;
+            end case;
          end loop;
 
          for I in 1 .. Batch_Size loop
+            -- We don't execute anything if we are waiting for input, but still want the timers to continue running
+            if Keypad.Waiting_For_Input then
+               exit;
+            end if;
+
             Instructions.Step (Step_Result);
 
             if Step_Result.Success = False then
@@ -161,6 +162,7 @@ begin
                Set_Exit_Status (1);
                return;
             end if;
+
          end loop;
 
          Display.Update (Result => Display_Update_Result);
