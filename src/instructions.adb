@@ -20,7 +20,7 @@ package body Instructions is
       Second_Byte : constant Memory_Word := Load (Get_Program_Counter + 1);
       Code        : constant Opcode :=
         Opcode
-          ((Integer (First_Byte) * Integer (Memory_Word'Last) + 1)
+          ((Integer (First_Byte) * (Integer (Memory_Word'Last) + 1))
            + Integer (Second_Byte));
    begin
       Current_Opcode := Code;
@@ -387,11 +387,9 @@ package body Instructions is
    procedure Handle_Skp_Vx
      (Register_1 : General_Register_Number; Result : out Instruction_Result)
    is
-      Key        : constant Register_Word := Get_General_Register (Register_1);
-      Is_Pressed : Boolean;
+      Key : constant Register_Word := Get_General_Register (Register_1);
    begin
-      Keypad.Key_Is_Pressed (Keypad.Keypad_Key (Key), Is_Pressed);
-      if Is_Pressed then
+      if Keypad.Pressed_Keys (Keypad.Keypad_Key (Key)) then
          if Get_Program_Counter = User_Address'Last then
             Result := Generate_Program_Counter_Error;
             return;
@@ -404,11 +402,9 @@ package body Instructions is
    procedure Handle_Sknp_Vx
      (Register_1 : General_Register_Number; Result : out Instruction_Result)
    is
-      Key        : constant Register_Word := Get_General_Register (Register_1);
-      Is_Pressed : Boolean;
+      Key : constant Register_Word := Get_General_Register (Register_1);
    begin
-      Keypad.Key_Is_Pressed (Keypad.Keypad_Key (Key), Is_Pressed);
-      if not Is_Pressed then
+      if not Keypad.Pressed_Keys (Keypad.Keypad_Key (Key)) then
          if Get_Program_Counter = User_Address'Last then
             Result := Generate_Program_Counter_Error;
             return;
@@ -428,8 +424,9 @@ package body Instructions is
    procedure Handle_Ld_Vx_K (Register_1 : General_Register_Number) is
       Key : Keypad.Keypad_Key;
    begin
-      Keypad.Wait_For_Keypress (Key);
-      Set_General_Register (Register_1, Register_Word (Key));
+      Keypad.Waiting_For_Input := True;
+      Keypad.Waiting_For_Input_Register := Register_1;
+   -- The actual handling is done in the main procedure. Not so nice, but that's were the sdl input handling is...
    end Handle_Ld_Vx_K;
 
    procedure Handle_Ld_Dt_Vx (Register_1 : General_Register_Number) is
@@ -478,14 +475,17 @@ package body Instructions is
       Set_Address_Register (Address (Sprite_Address));
    end Handle_Ld_F_Vx;
 
+   -- TODO: range check
    procedure Handle_Ld_B_Vx (Register_1 : General_Register_Number) is
       BCD_Value              : constant Conversions.BCD :=
         Conversions.To_BCD (Integer (Get_General_Register (Register_1)));
       Address_Register_Value : constant Address := Get_Address_Register;
    begin
-      Memory.Store (Address_Register_Value, Memory_Word (BCD_Value (1)));
-      Memory.Store (Address_Register_Value + 1, Memory_Word (BCD_Value (2)));
-      Memory.Store (Address_Register_Value + 2, Memory_Word (BCD_Value (3)));
+      for I in BCD_Value'Range loop
+         Memory.Store
+           (Address_Register_Value + Address ((I - 1)),
+            Memory_Word (BCD_Value (I)));
+      end loop;
    end Handle_Ld_B_Vx;
 
    procedure Handle_Ld_I_Vx
@@ -636,10 +636,8 @@ package body Instructions is
       Sprite_Size : Nibble;
       Result      : out Instruction_Result)
    is
-      X_Pos : constant Display.X_Coordinate :=
-        Display.X_Coordinate (Get_General_Register (Register_1));
-      Y_Pos : constant Display.Y_Coordinate :=
-        Display.Y_Coordinate (Get_General_Register (Register_2));
+      X_Pos : Display.X_Coordinate;
+      Y_Pos : Display.Y_Coordinate;
    begin
       if (Get_General_Register (Register_1) >= Display.Width
           or Get_General_Register (Register_2) >= Display.Height)
@@ -651,6 +649,9 @@ package body Instructions is
             Code    => Current_Opcode);
          return;
       end if;
+
+      X_Pos := Display.X_Coordinate (Get_General_Register (Register_1));
+      Y_Pos := Display.Y_Coordinate (Get_General_Register (Register_2));
 
       Display.Draw_Sprite
         (Location => Get_Address_Register,

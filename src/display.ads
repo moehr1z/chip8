@@ -7,6 +7,8 @@ with SDL.Video.Renderers;
 -- TODO: user definable colors
 
 package Display is
+   pragma Assertion_Policy (Check);
+
    package Display_Bounded_String is new
      Ada.Strings.Bounded.Generic_Bounded_Length (Max => 100);
    use Display_Bounded_String;

@@ -49,6 +49,7 @@ package body Display is
    function Was_Initialized return Boolean
    is (Initialized);
 
+   -- TODO: bounds check + more fine granular exception handling
    procedure Update (Result : out Display_Result) is
    begin
       begin
@@ -62,8 +63,8 @@ package body Display is
 
                Renderer.Fill
                  (Rectangle =>
-                    (SDL.Coordinate (Positive (X) * Display_Scale),
-                     SDL.Coordinate (Positive (Y) * Display_Scale),
+                    (SDL.Coordinate (Integer (X) * Integer (Display_Scale)),
+                     SDL.Coordinate (Integer (Y) * Integer (Display_Scale)),
                      SDL.Natural_Dimension (Display_Scale),
                      SDL.Natural_Dimension (Display_Scale)));
 

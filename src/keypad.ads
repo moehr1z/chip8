@@ -1,20 +1,34 @@
 with SDL.Events.Keyboards; use SDL.Events.Keyboards;
 with Display;
+with Registers;
+
+-- TODO: error handling
 
 package Keypad is
+   pragma Assertion_Policy (Check);
+
+   Waiting_For_Input          : Boolean := True;
+   Waiting_For_Input_Register : Registers.General_Register_Number := 0;
+
    type Keypad_Key is range 0 .. 16#F#;
 
-   procedure Key_Is_Pressed (Key : Keypad_Key; Is_Pressed : out Boolean)
-   with Pre => Display.Was_Initialized;
+   type Key_Option (Is_Some : Boolean := False) is record
+      case Is_Some is
+         when True =>
+            Key : Keypad_Key;
 
-   -- halts until a key is pressed, then returns it
-   procedure Wait_For_Keypress (Output_Key : out Keypad_Key)
-   with Pre => Display.Was_Initialized;
+         when False =>
+            null;
+      end case;
+   end record;
 
+   Pressed_Keys : array (Keypad_Key) of Boolean := [others => False];
+
+   function Scan_Code_To_Key (Code : Scan_Codes) return Key_Option;
 private
-   Latin1_Numerics_Start : Positive := 48; -- Element '0' in Latin1
-   -- mapping to a regular keyboard
-   Keymap                : array (Keypad_Key) of Scan_Codes :=
+
+   --  mapping to a regular keyboard
+   Keymap : array (Keypad_Key) of Scan_Codes :=
      [-- First row
       1     => Scan_Code_1,
       2     => Scan_Code_2,
@@ -35,4 +49,5 @@ private
       0     => Scan_Code_S,
       16#B# => Scan_Code_D,
       16#F# => Scan_Code_F];
+
 end Keypad;

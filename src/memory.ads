@@ -1,4 +1,6 @@
 package Memory is
+   pragma Assertion_Policy (Check);
+
    type Memory_Word is mod 2**8;
    type Address is mod 2**12;
    subtype User_Address is

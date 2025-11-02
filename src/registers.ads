@@ -1,6 +1,8 @@
 with Memory; use Memory;
 
 package Registers is
+   pragma Assertion_Policy (Check);
+
    type Register_Word is mod 2**8;
    type General_Register_Number is range 0 .. 16#F#;
 
@@ -14,8 +16,8 @@ package Registers is
      (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
    with
      Post =>
-       ((Integer (Get_General_Register (Number_1))
-         + Integer (Get_General_Register (Number_2))
+       ((Integer (Get_General_Register (Number_1)'Old)
+         + Integer (Get_General_Register (Number_2)'Old)
          > Integer (Register_Word'Last))
         and then Get_VF = 1)
        or else Get_VF = 0;
@@ -24,7 +26,8 @@ package Registers is
      (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
    with
      Post =>
-       (Get_General_Register (Number_1) > Get_General_Register (Number_2)
+       (Get_General_Register (Number_1)'Old
+        > Get_General_Register (Number_2)'Old
         and then Get_VF = 1)
        or else Get_VF = 0;
 
@@ -33,14 +36,14 @@ package Registers is
      (Target : General_Register_Number; Other : General_Register_Number)
    with
      Post =>
-       (Get_General_Register (Other) > Get_General_Register (Target)
+       (Get_General_Register (Other)'Old > Get_General_Register (Target)'Old
         and then Get_VF = 1)
        or else Get_VF = 0;
 
    procedure Shift_Left_General_Register (Number : General_Register_Number)
    with
      Post =>
-       ((Get_General_Register (Number)
+       ((Get_General_Register (Number)'Old
          and Register_Word (Register_Word'Modulus / 2))
         = 1
         and then Get_VF = 1)
@@ -49,7 +52,7 @@ package Registers is
    procedure Shift_Right_General_Register (Number : General_Register_Number)
    with
      Post =>
-       ((Get_General_Register (Number) and 1) = 1 and then Get_VF = 1)
+       ((Get_General_Register (Number)'Old and 1) = 1 and then Get_VF = 1)
        or else Get_VF = 0;
 
    function Get_General_Register
@@ -68,7 +71,7 @@ package Registers is
    procedure Increment_Program_Counter
    with
      Pre  => Get_Program_Counter < User_Address'Last,
-     Post => Get_Program_Counter = Get_Program_Counter'Old + 1;
+     Post => Get_Program_Counter = Get_Program_Counter'Old + 2;
 
    function Get_Program_Counter return User_Address;
 

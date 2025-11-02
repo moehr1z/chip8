@@ -1,5 +1,6 @@
 with Ada.Sequential_IO;
-with Sprites; use Sprites;
+with Sprites;     use Sprites;
+with Ada.Text_IO; use Ada.Text_IO;
 
 package body Memory is
    function Load (A : Address) return Memory_Word is
@@ -24,6 +25,7 @@ package body Memory is
       Current_Word : Memory_Word := 0;
    begin
       -- TODO: error handling (exceptions, file bigger than memory etc)
+      Put_Line ("Opening " & File_Name);
 
       Open (F, In_File, File_Name);
       while not End_Of_File (F) loop
@@ -50,28 +52,11 @@ package body Memory is
       end loop;
    end Load_Font;
 
-   function Is_User_Or_Font_Address (Value : Integer) return Boolean is
-   begin
-      if (Value < Integer (User_Address'First)
-          or Value > Integer (User_Address'Last))
-        and (Value < Integer (Font_Address'First)
-             or Value > Integer (Font_Address'Last))
-      then
-         return False;
-      else
-         return True;
-      end if;
-   end Is_User_Or_Font_Address;
+   function Is_User_Or_Font_Address (Value : Integer) return Boolean
+   is (Value in Integer (User_Address'First) .. Integer (User_Address'Last)
+       or else Value
+               in Integer (Font_Address'First) .. Integer (Font_Address'Last));
 
-   function Is_User_Address (Value : Integer) return Boolean is
-   begin
-      if Value < Integer (User_Address'First)
-        or Value > Integer (User_Address'Last)
-      then
-         return False;
-      else
-         return True;
-      end if;
-
-   end Is_User_Address;
+   function Is_User_Address (Value : Integer) return Boolean
+   is (Value in Integer (User_Address'First) .. Integer (User_Address'Last));
 end Memory;

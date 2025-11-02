@@ -16,34 +16,29 @@ package body Registers is
    begin
       Set_General_Register (Number_1, After_Value);
 
-      -- Overflow
       Set_VF (After_Value < Pre_Value);
    end Add_General_Register;
 
    procedure Sub_General_Register
      (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
    is
-      Pre_Value   : constant Register_Word := Get_General_Register (Number_1);
-      After_Value : constant Register_Word :=
-        Pre_Value - Get_General_Register (Number_2);
+      Value_1 : constant Register_Word := Get_General_Register (Number_1);
+      Value_2 : constant Register_Word := Get_General_Register (Number_2);
    begin
-      Set_General_Register (Number_1, After_Value);
+      Set_General_Register (Number_1, Value_1 - Value_2);
 
-      -- Underflow
-      Set_VF (After_Value > Pre_Value);
+      Set_VF (Value_1 > Value_2);
    end Sub_General_Register;
 
    procedure SubN_General_Register
      (Target : General_Register_Number; Other : General_Register_Number)
    is
-      Pre_Value   : constant Register_Word := Get_General_Register (Other);
-      After_Value : constant Register_Word :=
-        Pre_Value - Get_General_Register (Target);
+      Value_1 : constant Register_Word := Get_General_Register (Target);
+      Value_2 : constant Register_Word := Get_General_Register (Other);
    begin
-      Set_General_Register (Target, After_Value);
+      Set_General_Register (Target, Value_2 - Value_1);
 
-      -- Underflow
-      Set_VF (After_Value > Pre_Value);
+      Set_VF (Value_2 > Value_1);
    end SubN_General_Register;
 
    procedure Shift_Left_General_Register (Number : General_Register_Number) is
@@ -90,12 +85,8 @@ package body Registers is
    is (Program_Counter);
 
    procedure Set_VF (B : Boolean) is
-      Value : Register_Word := 0;
    begin
-      if B then
-         Value := 1;
-      end if;
-      Set_General_Register (VF, Value);
+      Set_General_Register (VF, (if B then 1 else 0));
    end Set_VF;
 
    function Get_VF return Register_Word

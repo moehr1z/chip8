@@ -5,28 +5,35 @@ use Instructions.Instruction_Bounded_String;
 with Memory;
 with Random_Numbers;
 with Timers;
+with Keypad;
 with Ada.Text_IO;           use Ada.Text_IO;
 with Ada.Real_Time;         use Ada.Real_Time;
 with Ada.Command_Line;      use Ada.Command_Line;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with GNAT.Command_Line;     use GNAT.Command_Line;
+with SDL.Events.Events;     use SDL.Events.Events;
+with SDL.Events.Keyboards;  use SDL.Events.Keyboards;
+
+with Registers;
 
 procedure Chip8 is
-   type Failure_Modes is (Shutdown, Ignore, Halt);
-
-   Rom          : Unbounded_String := To_Unbounded_String ("Default.ch8");
-   Batch_Size   : Integer := 600;
-   Scaling      : Integer := 1;
-   Failure_Mode : Failure_Modes := Shutdown;
+   Rom        : Unbounded_String := To_Unbounded_String ("Default.ch8");
+   Batch_Size : Integer := 600;
+   Scaling    : Integer := 1;
 
    Display_Init_Result   : Display.Display_Result;
    Display_Update_Result : Display.Display_Result;
    Step_Result           : Instructions.Instruction_Result;
+
+   procedure Dump_State is
+   begin
+      Put_Line ("Program Counter: " & Registers.Get_Program_Counter'Image);
+   end Dump_State;
 begin
    -- parse command line options
    loop
       begin
-         case Getopt ("r: -rom: b: -batch: s: -scaling: f: -fail-mode:") is
+         case Getopt ("r: -rom: b: -batch: s: -scaling:") is
             when 'r' =>
                Rom := To_Unbounded_String (Parameter);
 
@@ -36,9 +43,6 @@ begin
             when 's' =>
                Scaling := Integer'Value (Parameter);
 
-            when 'f' =>
-               Failure_Mode := Failure_Modes'Value (Parameter);
-
             when '-' =>
                if Full_Switch = "--rom" then
                   Rom := To_Unbounded_String (Parameter);
@@ -46,8 +50,6 @@ begin
                   Batch_Size := Integer'Value (Parameter);
                elsif Full_Switch = "--scaling" then
                   Scaling := Integer'Value (Parameter);
-               elsif Full_Switch = "--fail-mode" then
-                  Failure_Mode := Failure_Modes'Value (Parameter);
                end if;
 
             when ASCII.NUL =>
@@ -77,19 +79,9 @@ begin
          & Display_Init_Result.Error'Image
          & ")");
       Put_Line ("Error Message: " & To_String (Display_Init_Result.Message));
-
-      case Failure_Mode is
-         when Shutdown =>
-            Set_Exit_Status (1);
-            return;
-
-         when Ignore =>
-            null;
-
-         when Halt =>
-            delay Duration (Integer'Last);
-            return;
-      end case;
+      Dump_State;
+      Set_Exit_Status (1);
+      return;
    end if;
 
    Memory.Load_Font;
@@ -97,13 +89,58 @@ begin
 
    -- main loop
    declare
-      Micro      : constant Float := 10.0**6;
-      Period     : constant Time_Span :=
+      Micro         : constant Float := 10.0**6;
+      Period        : constant Time_Span :=
         Microseconds (Integer (Micro / Float (Timers.Rate_In_Hertz)));
-      Next_Cycle : Time := Clock;
+      Next_Cycle    : Time := Clock;
+      Current_Event : Events;
    begin
       loop
          Next_Cycle := Next_Cycle + Period;
+
+         -- Handle SDL inputs
+         loop
+            while Poll (Current_Event) loop
+               case Current_Event.Common.Event_Type is
+                  when Key_Down =>
+                     declare
+                        Key : Keypad.Key_Option :=
+                          Keypad.Scan_Code_To_Key
+                            (Current_Event.Keyboard.Key_Sym.Scan_Code);
+                     begin
+                        if Key.Is_Some then
+                           Keypad.Pressed_Keys (Key.Key) := True;
+
+                           if Keypad.Waiting_For_Input then
+                              Registers.Set_General_Register
+                                (Keypad.Waiting_For_Input_Register,
+                                 Registers.Register_Word (Key.Key));
+                              Keypad.Waiting_For_Input := False;
+                           end if;
+                        end if;
+                     end;
+
+                  when Key_Up =>
+                     declare
+                        Key : Keypad.Key_Option :=
+                          Keypad.Scan_Code_To_Key
+                            (Current_Event.Keyboard.Key_Sym.Scan_Code);
+                     begin
+                        if Key.Is_Some then
+                           Keypad.Pressed_Keys (Key.Key) := False;
+                        end if;
+                     end;
+
+                  when SDL.Events.Quit =>
+                     return;
+
+                  when others =>
+                     null;
+               end case;
+            end loop;
+
+            exit when not Keypad.Waiting_For_Input;
+         end loop;
 
          for I in 1 .. Batch_Size loop
             Instructions.Step (Step_Result);
@@ -115,19 +152,9 @@ begin
                   & ")");
                Put_Line ("Error Message: " & To_String (Step_Result.Message));
                Put_Line ("Opcode: " & Step_Result.Code'Image);
-
-               case Failure_Mode is
-                  when Shutdown =>
-                     Set_Exit_Status (1);
-                     return;
-
-                  when Ignore =>
-                     null;
-
-                  when Halt =>
-                     delay Duration (Integer'Last);
-                     return;
-               end case;
+               Dump_State;
+               Set_Exit_Status (1);
+               return;
             end if;
          end loop;
 
@@ -139,26 +166,14 @@ begin
                & ")");
             Put_Line
               ("Error Message: " & To_String (Display_Update_Result.Message));
-
-            case Failure_Mode is
-               when Shutdown =>
-                  Set_Exit_Status (1);
-                  return;
-
-               when Ignore =>
-                  null;
-
-               when Halt =>
-                  delay Duration (Integer'Last);
-                  return;
-            end case;
-
+            Dump_State;
+            Set_Exit_Status (1);
+            return;
          end if;
 
          Timers.Update_Timers;
 
          if Clock >= Next_Cycle then
-            Put_Line ("Deadline miss!");
             Next_Cycle := Clock;
          end if;
 

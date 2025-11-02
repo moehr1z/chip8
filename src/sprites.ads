@@ -1,4 +1,6 @@
 package Sprites is
+   pragma Assertion_Policy (Check);
+
    Max_Sprite_Height : constant Integer := 15;
 
    type Sprite_Row_Value is mod 2**8;

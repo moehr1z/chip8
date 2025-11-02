@@ -1,6 +1,8 @@
 with Memory; use Memory;
 
 package Stack is
+   pragma Assertion_Policy (Check);
+
    Capacity : constant := 16;
 
    procedure Push (I : User_Address)
@@ -12,7 +14,8 @@ package Stack is
    function Empty return Boolean;
    function Full return Boolean;
    function Size return Integer;
-   function Peek return User_Address;
+   function Peek return User_Address
+   with Pre => not Empty;
 private
    Items : array (1 .. Capacity) of User_Address; -- the actual stack
    Top   : Integer range 0 .. Capacity := 0; -- 0 iff empty
