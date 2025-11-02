@@ -28,6 +28,10 @@ procedure Chip8 is
    procedure Dump_State is
    begin
       Put_Line ("Program Counter: " & Registers.Get_Program_Counter'Image);
+      Put_Line ("Registers: ");
+      for I in Registers.General_Register_Number'Range loop
+         Put_Line (I'Image & ": " & Registers.Get_General_Register (I)'Image);
+      end loop;
    end Dump_State;
 begin
    -- parse command line options
