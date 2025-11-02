@@ -4,7 +4,7 @@ package Sprites is
    Max_Sprite_Height : constant Integer := 15;
 
    type Sprite_Row_Value is mod 2**8;
-   type Sprite_Row_Number is range 1 .. Max_Sprite_Height;
+   type Sprite_Row_Number is range 0 .. Max_Sprite_Height;
    type Sprite is array (Sprite_Row_Number range <>) of Sprite_Row_Value;
 
    -- Predefined font for hexadecimal values
