@@ -1,4 +1,5 @@
 with Instructions;
+with Ada.Text_IO;
 
 package body Registers is
    procedure Set_General_Register
@@ -56,6 +57,36 @@ package body Registers is
 
       Set_VF ((Value and 1) = 1);
    end Shift_Right_General_Register;
+
+   procedure And_General_Register
+     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
+   is
+   begin
+      Set_General_Register
+        (Number_1,
+         Get_General_Register (Number_1) and Get_General_Register (Number_2));
+      Set_VF (False);
+   end And_General_Register;
+
+   procedure Or_General_Register
+     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
+   is
+   begin
+      Set_General_Register
+        (Number_1,
+         Get_General_Register (Number_1) or Get_General_Register (Number_2));
+      Set_VF (False);
+   end Or_General_Register;
+
+   procedure Xor_General_Register
+     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
+   is
+   begin
+      Set_General_Register
+        (Number_1,
+         Get_General_Register (Number_1) xor Get_General_Register (Number_2));
+      Set_VF (False);
+   end Xor_General_Register;
 
    function Get_General_Register
      (Number : General_Register_Number) return Register_Word

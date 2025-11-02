@@ -513,30 +513,21 @@ package body Instructions is
      (Register_1 : General_Register_Number;
       Register_2 : General_Register_Number) is
    begin
-      Set_General_Register
-        (Register_1,
-         Get_General_Register (Register_1)
-         or Get_General_Register (Register_2));
+      Or_General_Register (Register_1, Register_2);
    end Handle_Or_Vx_Vy;
 
    procedure Handle_And_Vx_Vy
      (Register_1 : General_Register_Number;
       Register_2 : General_Register_Number) is
    begin
-      Set_General_Register
-        (Register_1,
-         Get_General_Register (Register_1)
-         and Get_General_Register (Register_2));
+      And_General_Register (Register_1, Register_2);
    end Handle_And_Vx_Vy;
 
    procedure Handle_Xor_Vx_Vy
      (Register_1 : General_Register_Number;
       Register_2 : General_Register_Number) is
    begin
-      Set_General_Register
-        (Register_1,
-         Get_General_Register (Register_1)
-         xor Get_General_Register (Register_2));
+      Xor_General_Register (Register_1, Register_2);
    end Handle_Xor_Vx_Vy;
 
    procedure Handle_Add_Vx_Vy
