@@ -27,7 +27,7 @@ package Registers is
    with
      Post =>
        (Get_General_Register (Number_1)'Old
-        > Get_General_Register (Number_2)'Old
+        >= Get_General_Register (Number_2)'Old
         and then Get_VF = 1)
        or else Get_VF = 0;
 
@@ -36,7 +36,7 @@ package Registers is
      (Target : General_Register_Number; Other : General_Register_Number)
    with
      Post =>
-       (Get_General_Register (Other)'Old > Get_General_Register (Target)'Old
+       (Get_General_Register (Other)'Old >= Get_General_Register (Target)'Old
         and then Get_VF = 1)
        or else Get_VF = 0;
 

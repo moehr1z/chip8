@@ -27,7 +27,7 @@ package body Registers is
    begin
       Set_General_Register (Number_1, Value_1 - Value_2);
 
-      Set_VF (Value_1 > Value_2);
+      Set_VF (Value_1 >= Value_2);
    end Sub_General_Register;
 
    procedure SubN_General_Register
@@ -38,23 +38,23 @@ package body Registers is
    begin
       Set_General_Register (Target, Value_2 - Value_1);
 
-      Set_VF (Value_2 > Value_1);
+      Set_VF (Value_2 >= Value_1);
    end SubN_General_Register;
 
    procedure Shift_Left_General_Register (Number : General_Register_Number) is
       Value : constant Register_Word := Get_General_Register (Number);
    begin
-      Set_VF ((Value and Register_Word (Register_Word'Modulus / 2)) /= 0);
-
       Set_General_Register (Number, Value * 2);
+
+      Set_VF ((Value and Register_Word (Register_Word'Modulus / 2)) /= 0);
    end Shift_Left_General_Register;
 
    procedure Shift_Right_General_Register (Number : General_Register_Number) is
       Value : constant Register_Word := Get_General_Register (Number);
    begin
-      Set_VF ((Value and 1) = 1);
-
       Set_General_Register (Number, Value / 2);
+
+      Set_VF ((Value and 1) = 1);
    end Shift_Right_General_Register;
 
    function Get_General_Register
