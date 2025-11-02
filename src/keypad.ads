@@ -45,9 +45,9 @@ private
       9     => Scan_Code_D,
       16#E# => Scan_Code_F,
       -- Fourth Row
-      16#A# => Scan_Code_A,
-      0     => Scan_Code_S,
-      16#B# => Scan_Code_D,
-      16#F# => Scan_Code_F];
+      16#A# => Scan_Code_Y,
+      0     => Scan_Code_X,
+      16#B# => Scan_Code_C,
+      16#F# => Scan_Code_V];
 
 end Keypad;
