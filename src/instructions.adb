@@ -142,8 +142,7 @@ package body Instructions is
             Handle_Drw_Vx_Vy_Nibble
               (General_Register_Number (I.X_Value),
                General_Register_Number (I.Y_Value),
-               Nibble (I.N_Value),
-               Result);
+               Nibble (I.N_Value));
 
          when 16#E000# =>
             case O and 16#00FF# is
@@ -633,25 +632,17 @@ package body Instructions is
    procedure Handle_Drw_Vx_Vy_Nibble
      (Register_1  : General_Register_Number;
       Register_2  : General_Register_Number;
-      Sprite_Size : Nibble;
-      Result      : out Instruction_Result)
+      Sprite_Size : Nibble)
    is
       X_Pos : Display.X_Coordinate;
       Y_Pos : Display.Y_Coordinate;
    begin
-      if (Get_General_Register (Register_1) >= Display.Width
-          or Get_General_Register (Register_2) >= Display.Height)
-      then
-         Result :=
-           (Success => False,
-            Error   => Execution_Error,
-            Message => To_Bounded_String ("Position out of display range"),
-            Code    => Current_Opcode);
-         return;
-      end if;
-
-      X_Pos := Display.X_Coordinate (Get_General_Register (Register_1));
-      Y_Pos := Display.Y_Coordinate (Get_General_Register (Register_2));
+      X_Pos :=
+        Display.X_Coordinate
+          (Get_General_Register (Register_1) mod Display.Width);
+      Y_Pos :=
+        Display.Y_Coordinate
+          (Get_General_Register (Register_2) mod Display.Height);
 
       Display.Draw_Sprite
         (Location => Get_Address_Register,

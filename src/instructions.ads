@@ -149,6 +149,5 @@ private
    procedure Handle_Drw_Vx_Vy_Nibble
      (Register_1  : General_Register_Number;
       Register_2  : General_Register_Number;
-      Sprite_Size : Nibble;
-      Result      : out Instruction_Result);
+      Sprite_Size : Nibble);
 end Instructions;
