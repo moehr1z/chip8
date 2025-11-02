@@ -45,7 +45,7 @@ package Registers is
      Post =>
        ((Get_General_Register (Number)'Old
          and Register_Word (Register_Word'Modulus / 2))
-        = 1
+        /= 0
         and then Get_VF = 1)
        or else Get_VF = 0;
 
