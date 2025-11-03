@@ -132,7 +132,10 @@ package body Instructions is
             Handle_Ld_I_Addr (Address (I.NNN_Value));
 
          when 16#B000# =>
-            Handle_Jp_V0_Addr (User_Address (I.NNN_Value), Result);
+            Handle_Jp_Vx_Addr
+              (General_Register_Number (I.X_Value),
+               User_Address (I.NNN_Value),
+               Result);
 
          when 16#C000# =>
             Handle_Rnd_Vx_Byte
@@ -298,10 +301,13 @@ package body Instructions is
       Set_Program_Counter (Target_Address);
    end Handle_Call_Addr;
 
-   procedure Handle_Jp_V0_Addr
-     (Target_Address : Address; Result : out Instruction_Result)
+   procedure Handle_Jp_Vx_Addr
+     (Register       : General_Register_Number;
+      Target_Address : Address;
+      Result         : out Instruction_Result)
    is
-      Value         : constant Register_Word := Get_General_Register (0);
+      Value         : constant Register_Word :=
+        Get_General_Register (Register);
       Final_Address : constant Integer :=
         Integer (Target_Address) + Integer (Value);
    begin
@@ -311,7 +317,7 @@ package body Instructions is
       end if;
 
       Set_Program_Counter (User_Address (Final_Address));
-   end Handle_Jp_V0_Addr;
+   end Handle_Jp_Vx_Addr;
 
    procedure Handle_Ld_I_Addr (Target_Address : Address) is
    begin

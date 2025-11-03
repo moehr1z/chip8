@@ -76,8 +76,10 @@ private
      (Target_Address : Address; Result : out Instruction_Result);
    procedure Handle_Call_Addr
      (Target_Address : Address; Result : out Instruction_Result);
-   procedure Handle_Jp_V0_Addr
-     (Target_Address : Address; Result : out Instruction_Result);
+   procedure Handle_Jp_Vx_Addr
+     (Register       : General_Register_Number;
+      Target_Address : Address;
+      Result         : out Instruction_Result);
    procedure Handle_Ld_I_Addr (Target_Address : Address);
 
    procedure Handle_Se_Vx_Byte
