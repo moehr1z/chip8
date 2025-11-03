@@ -470,27 +470,23 @@ package body Instructions is
       end loop;
    end Handle_Ld_B_Vx;
 
-   -- TODO: range check
    procedure Handle_Ld_I_Vx (Register_1 : General_Register_Number) is
-      Current_Address : Address;
+      Current_Address : Address := Get_Address_Register;
    begin
       for Register in General_Register_Number'First .. Register_1 loop
-         Current_Address := Get_Address_Register;
          Memory.Store
            (Current_Address, Memory_Word (Get_General_Register (Register)));
-         Set_Address_Register (Current_Address + 1);
+         Current_Address := Current_Address + 1;
       end loop;
    end Handle_Ld_I_Vx;
 
-   -- TODO: range check
    procedure Handle_Ld_Vx_I (Register_1 : General_Register_Number) is
-      Current_Address : Address;
+      Current_Address : Address := Get_Address_Register;
    begin
       for Register in General_Register_Number'First .. Register_1 loop
-         Current_Address := Get_Address_Register;
          Set_General_Register
            (Register, Register_Word (Memory.Load (Current_Address)));
-         Set_Address_Register (Current_Address + 1);
+         Current_Address := Current_Address + 1;
       end loop;
    end Handle_Ld_Vx_I;
 
