@@ -1,9 +1,11 @@
+with Audio;
 with Display;
 use Display.Display_Bounded_String;
 with Instructions;
 use Instructions.Instruction_Bounded_String;
 with Memory;
 with Random_Numbers;
+with Results;
 with Timers;
 with Keypad;
 with Ada.Text_IO;           use Ada.Text_IO;
@@ -21,6 +23,7 @@ procedure Chip8 is
    Batch_Size : Integer := 10;
    Scaling    : Integer := 20;
 
+   Audio_Init_Result     : Results.Result_Type;
    Display_Init_Result   : Display.Display_Result;
    Display_Update_Result : Display.Display_Result;
    Step_Result           : Instructions.Instruction_Result;
@@ -79,6 +82,8 @@ begin
       Set_Exit_Status (1);
       return;
    end if;
+
+   Audio.Init (Audio_Init_Result);
 
    Memory.Load_Font;
    Memory.Load_Program (To_String (Rom));
@@ -169,6 +174,7 @@ begin
             return;
          end if;
 
+         Audio.Play_Audio;
          Timers.Update_Timers;
 
          if Clock >= Next_Cycle then
