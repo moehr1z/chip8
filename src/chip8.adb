@@ -38,7 +38,7 @@ begin
    -- parse command line options
    loop
       begin
-         case Getopt ("r: -rom: b: -batch: s: -scaling:") is
+         case Getopt ("r: b: s:") is
             when 'r' =>
                Rom := To_Unbounded_String (Parameter);
 
@@ -47,15 +47,6 @@ begin
 
             when 's' =>
                Scaling := Integer'Value (Parameter);
-
-            when '-' =>
-               if Full_Switch = "--rom" then
-                  Rom := To_Unbounded_String (Parameter);
-               elsif Full_Switch = "--batch" then
-                  Batch_Size := Integer'Value (Parameter);
-               elsif Full_Switch = "--scaling" then
-                  Scaling := Integer'Value (Parameter);
-               end if;
 
             when ASCII.NUL =>
                exit;
