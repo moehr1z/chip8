@@ -40,26 +40,20 @@ package Registers is
         and then Get_VF = 1)
        or else Get_VF = 0;
 
-   procedure Shift_Left_General_Register
-     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
+   procedure Shift_Left_General_Register (Number : General_Register_Number)
    with
      Post =>
-       (((Get_General_Register (Number_2)'Old
-          and Register_Word (Register_Word'Modulus / 2))
-         /= 0
-         and then Get_VF = 1)
-        or else Get_VF = 0)
-       and Get_General_Register (Number_1)
-           = Get_General_Register (Number_2)'Old * 2;
+       ((Get_General_Register (Number)'Old
+         and Register_Word (Register_Word'Modulus / 2))
+        /= 0
+        and then Get_VF = 1)
+       or else Get_VF = 0;
 
-   procedure Shift_Right_General_Register
-     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
+   procedure Shift_Right_General_Register (Number : General_Register_Number)
    with
      Post =>
-       (((Get_General_Register (Number_2)'Old and 1) = 1 and then Get_VF = 1)
-        or else Get_VF = 0)
-       and Get_General_Register (Number_1)
-           = Get_General_Register (Number_2)'Old / 2;
+       ((Get_General_Register (Number)'Old and 1) = 1 and then Get_VF = 1)
+       or else Get_VF = 0;
 
    function Get_General_Register
      (Number : General_Register_Number) return Register_Word;

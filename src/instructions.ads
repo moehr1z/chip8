@@ -108,12 +108,8 @@ private
    procedure Handle_Add_I_Vx (Register_1 : General_Register_Number);
    procedure Handle_Ld_F_Vx (Register_1 : General_Register_Number);
    procedure Handle_Ld_B_Vx (Register_1 : General_Register_Number);
-   procedure Handle_Shr_Vx_Vy
-     (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number);
-   procedure Handle_Shl_Vx_Vy
-     (Register_1 : General_Register_Number;
-      Register_2 : General_Register_Number);
+   procedure Handle_Shr_Vx (Register_1 : General_Register_Number);
+   procedure Handle_Shl_Vx (Register_1 : General_Register_Number);
 
    procedure Handle_Se_Vx_Vy
      (Register_1 : General_Register_Number;
