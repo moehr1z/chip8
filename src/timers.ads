@@ -16,8 +16,8 @@ package Timers is
    function Get_Delay_Timer return Timer;
    function Get_Sound_Timer return Timer;
 private
-   Delay_Timer_Value : Timer := Timer'Last;
-   Sound_Timer_Value : Timer := Timer'Last;
+   Delay_Timer_Value : Timer := 0;
+   Sound_Timer_Value : Timer := 0;
 
    procedure Update_Delay_Timer
    with
