@@ -168,7 +168,7 @@ begin
             return;
          end if;
 
-         Audio.Play_Audio;
+         Audio.Handle_Audio;
          Timers.Update_Timers;
 
          if Clock >= Next_Cycle then
