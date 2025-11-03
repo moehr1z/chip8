@@ -1,6 +1,5 @@
 with Audio;
 with Display;
-use Display.Display_Bounded_String;
 with Instructions;
 use Instructions.Instruction_Bounded_String;
 with Memory;
@@ -24,8 +23,8 @@ procedure Chip8 is
    Scaling    : Integer := 20;
 
    Audio_Init_Result     : Results.Result_Type;
-   Display_Init_Result   : Display.Display_Result;
-   Display_Update_Result : Display.Display_Result;
+   Display_Init_Result   : Results.Result_Type;
+   Display_Update_Result : Results.Result_Type;
    Step_Result           : Instructions.Instruction_Result;
 
    procedure Dump_State is
@@ -75,9 +74,8 @@ begin
    if not Display_Init_Result.Success then
       Put_Line
         ("Could not initialize display ("
-         & Display_Init_Result.Error'Image
+         & Display_Init_Result.Message'Image
          & ")");
-      Put_Line ("Error Message: " & To_String (Display_Init_Result.Message));
       Dump_State;
       Set_Exit_Status (1);
       return;
@@ -165,10 +163,8 @@ begin
          if not Display_Update_Result.Success then
             Put_Line
               ("Could not update display ("
-               & Display_Update_Result.Error'Image
+               & Display_Update_Result.Message'Image
                & ")");
-            Put_Line
-              ("Error Message: " & To_String (Display_Update_Result.Message));
             Dump_State;
             Set_Exit_Status (1);
             return;

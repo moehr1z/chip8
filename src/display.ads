@@ -3,28 +3,12 @@ with Memory;  use Memory;
 with Sprites; use Sprites;
 with SDL.Video.Windows;
 with SDL.Video.Renderers;
+with Results; use Results;
 
 -- TODO: user definable colors
 
 package Display is
    pragma Assertion_Policy (Check);
-
-   package Display_Bounded_String is new
-     Ada.Strings.Bounded.Generic_Bounded_Length (Max => 100);
-   use Display_Bounded_String;
-
-   type Display_Error is (SDL_Error);
-
-   type Display_Result (Success : Boolean := True) is record
-      case Success is
-         when True =>
-            null;
-
-         when False =>
-            Error   : Display_Error;
-            Message : Bounded_String;
-      end case;
-   end record;
 
    Width  : constant := 64;
    Height : constant := 32;
@@ -32,7 +16,7 @@ package Display is
    type X_Coordinate is mod Width;
    type Y_Coordinate is mod Height;
 
-   procedure Init (Scale : Positive := 1; Result : out Display_Result)
+   procedure Init (Scale : Positive := 1; Result : out Result_Type)
    with
      Pre  => not Was_Initialized,
      Post =>
@@ -40,7 +24,7 @@ package Display is
        or else (Result.Success = False);
    function Was_Initialized return Boolean;
 
-   procedure Update (Result : out Display_Result)
+   procedure Update (Result : out Result_Type)
    with Pre => Was_Initialized;
 
    procedure Draw_Sprite

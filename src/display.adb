@@ -6,14 +6,13 @@ with Ada.Strings; use Ada.Strings;
 
 package body Display is
 
-   procedure Init (Scale : Positive := 1; Result : out Display_Result) is
+   procedure Init (Scale : Positive := 1; Result : out Result_Type) is
    begin
       Display_Scale := Scale;
 
       if not SDL.Initialise (Flags => SDL.Enable_Screen) then
          Result :=
            (Success => False,
-            Error   => SDL_Error,
             Message => To_Bounded_String (SDL.Error.Get, Right));
          return;
       end if;
@@ -39,7 +38,6 @@ package body Display is
          when others =>
             Result :=
               (Success => False,
-               Error   => SDL_Error,
                Message => To_Bounded_String (SDL.Error.Get, Right));
             return;
       end;
@@ -50,7 +48,7 @@ package body Display is
    is (Initialized);
 
    -- TODO: bounds check + more fine granular exception handling
-   procedure Update (Result : out Display_Result) is
+   procedure Update (Result : out Result_Type) is
    begin
       begin
          for X in Display_Array'Range (1) loop
@@ -76,7 +74,6 @@ package body Display is
          when others =>
             Result :=
               (Success => False,
-               Error   => SDL_Error,
                Message => To_Bounded_String (SDL.Error.Get, Right));
             return;
       end;
