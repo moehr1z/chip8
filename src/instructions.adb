@@ -108,7 +108,9 @@ package body Instructions is
                      General_Register_Number (I.Y_Value));
 
                when 16#0006# =>
-                  Handle_Shr_Vx (General_Register_Number (I.X_Value));
+                  Handle_Shr_Vx_Vy
+                    (General_Register_Number (I.X_Value),
+                     General_Register_Number (I.Y_Value));
 
                when 16#0007# =>
                   Handle_Subn_Vx_Vy
@@ -116,7 +118,9 @@ package body Instructions is
                      General_Register_Number (I.Y_Value));
 
                when 16#000E# =>
-                  Handle_Shl_Vx (General_Register_Number (I.X_Value));
+                  Handle_Shl_Vx_Vy
+                    (General_Register_Number (I.X_Value),
+                     General_Register_Number (I.Y_Value));
 
                when others =>
                   Result := Generate_Unknown_Opcode_Error;
@@ -548,10 +552,12 @@ package body Instructions is
       Sub_General_Register (Register_1, Register_2);
    end Handle_Sub_Vx_Vy;
 
-   procedure Handle_Shr_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Shr_Vx_Vy
+     (Register_1 : General_Register_Number;
+      Register_2 : General_Register_Number) is
    begin
-      Shift_Right_General_Register (Register_1);
-   end Handle_Shr_Vx;
+      Shift_Right_General_Register (Register_1, Register_2);
+   end Handle_Shr_Vx_Vy;
 
    procedure Handle_Subn_Vx_Vy
      (Register_1 : General_Register_Number;
@@ -560,10 +566,12 @@ package body Instructions is
       SubN_General_Register (Register_1, Register_2);
    end Handle_Subn_Vx_Vy;
 
-   procedure Handle_Shl_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Shl_Vx_Vy
+     (Register_1 : General_Register_Number;
+      Register_2 : General_Register_Number) is
    begin
-      Shift_Left_General_Register (Register_1);
-   end Handle_Shl_Vx;
+      Shift_Left_General_Register (Register_1, Register_2);
+   end Handle_Shl_Vx_Vy;
 
    procedure Handle_Sne_Vx_Vy
      (Register_1 : General_Register_Number;
