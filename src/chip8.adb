@@ -1,7 +1,6 @@
 with Audio;
 with Display;
 with Instructions;
-use Instructions.Instruction_Bounded_String;
 with Memory;
 with Random_Numbers;
 with Results;
@@ -25,7 +24,7 @@ procedure Chip8 is
    Audio_Init_Result     : Results.Result_Type;
    Display_Init_Result   : Results.Result_Type;
    Display_Update_Result : Results.Result_Type;
-   Step_Result           : Instructions.Instruction_Result;
+   Step_Result           : Results.Result_Type;
 
    procedure Dump_State is
    begin
@@ -35,6 +34,7 @@ procedure Chip8 is
          Put_Line (I'Image & ": " & Registers.Get_General_Register (I)'Image);
       end loop;
       Put_Line ("Address Register: " & Registers.Get_Address_Register'Image);
+      Put_Line ("Current Opcode: " & Instructions.Current_Opcode'Image);
    end Dump_State;
 begin
    -- parse command line options
@@ -148,10 +148,8 @@ begin
             if Step_Result.Success = False then
                Put_Line
                  ("Could not execute instruction ("
-                  & Step_Result.Error'Image
+                  & Step_Result.Message'Image
                   & ")");
-               Put_Line ("Error Message: " & To_String (Step_Result.Message));
-               Put_Line ("Opcode: " & Step_Result.Code'Image);
                Dump_State;
                Set_Exit_Status (1);
                return;

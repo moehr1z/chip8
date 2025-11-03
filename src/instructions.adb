@@ -6,9 +6,11 @@ with Stack;
 with Timers;
 with Keypad;
 with Random_Numbers;
+with Results;
+use Results.Result_Bounded_String;
 
 package body Instructions is
-   procedure Step (Result : out Instruction_Result) is
+   procedure Step (Result : out Result_Type) is
       O : constant Opcode := Fetch;
    begin
       Increment_Program_Counter;
@@ -27,7 +29,7 @@ package body Instructions is
       return Code;
    end Fetch;
 
-   procedure Execute (O : Opcode; Result : out Instruction_Result) is
+   procedure Execute (O : Opcode; Result : out Result_Type) is
       I : constant Instruction := To_Instruction (O);
    begin
       case O and 16#F000# is
@@ -207,34 +209,27 @@ package body Instructions is
       return (N_Value, NNN_Value, X_Value, Y_Value, KK_Value);
    end To_Instruction;
 
-   function Generate_Program_Counter_Error return Instruction_Result is
+   function Generate_Program_Counter_Error return Result_Type is
    begin
       return
         (Success => False,
-         Error   => Execution_Error,
          Message =>
            To_Bounded_String
-             ("Cannot increase program counter because it already points to the last user address"),
-         Code    => Current_Opcode);
+             ("Cannot increase program counter because it already points to the last user address"));
    end Generate_Program_Counter_Error;
 
-   function Generate_Address_Bounds_Error return Instruction_Result is
+   function Generate_Address_Bounds_Error return Result_Type is
    begin
       return
         (Success => False,
-         Error   => Execution_Error,
          Message =>
-           To_Bounded_String ("Address out of user or font space bounds"),
-         Code    => Current_Opcode);
+           To_Bounded_String ("Address out of user or font space bounds"));
    end Generate_Address_Bounds_Error;
 
-   function Generate_Unknown_Opcode_Error return Instruction_Result is
+   function Generate_Unknown_Opcode_Error return Result_Type is
    begin
       return
-        (Success => False,
-         Error   => Opcode_Error,
-         Message => To_Bounded_String ("Unknown opcode"),
-         Code    => Current_Opcode);
+        (Success => False, Message => To_Bounded_String ("Unknown opcode"));
    end Generate_Unknown_Opcode_Error;
 
    -- Instruction handlers
@@ -245,15 +240,12 @@ package body Instructions is
       Display.Clear;
    end Handle_Cls;
 
-   procedure Handle_Ret (Result : out Instruction_Result) is
+   procedure Handle_Ret (Result : out Result_Type) is
       Return_Address : User_Address;
    begin
       if Stack.Empty then
          Result :=
-           (Success => False,
-            Error   => Execution_Error,
-            Message => To_Bounded_String ("Stack Empty"),
-            Code    => Current_Opcode);
+           (Success => False, Message => To_Bounded_String ("Stack Empty"));
          return;
       end if;
 
@@ -269,7 +261,7 @@ package body Instructions is
    end Handle_Sys_Addr;
 
    procedure Handle_Jp_Addr
-     (Target_Address : Address; Result : out Instruction_Result) is
+     (Target_Address : Address; Result : out Result_Type) is
    begin
       if not Memory.Is_User_Address (Integer (Target_Address)) then
          Result := Generate_Address_Bounds_Error;
@@ -280,7 +272,7 @@ package body Instructions is
    end Handle_Jp_Addr;
 
    procedure Handle_Call_Addr
-     (Target_Address : Address; Result : out Instruction_Result) is
+     (Target_Address : Address; Result : out Result_Type) is
    begin
       if not Memory.Is_User_Address (Integer (Target_Address)) then
          Result := Generate_Address_Bounds_Error;
@@ -289,10 +281,7 @@ package body Instructions is
 
       if Stack.Full then
          Result :=
-           (Success => False,
-            Error   => Execution_Error,
-            Message => To_Bounded_String ("Stack Full"),
-            Code    => Current_Opcode);
+           (Success => False, Message => To_Bounded_String ("Stack Full"));
          return;
       end if;
 
@@ -303,7 +292,7 @@ package body Instructions is
    procedure Handle_Jp_Vx_Addr
      (Register       : General_Register_Number;
       Target_Address : Address;
-      Result         : out Instruction_Result)
+      Result         : out Result_Type)
    is
       Value         : constant Register_Word :=
         Get_General_Register (Register);
@@ -324,9 +313,7 @@ package body Instructions is
    end Handle_Ld_I_Addr;
 
    procedure Handle_Se_Vx_Byte
-     (Register_1 : General_Register_Number;
-      B          : Byte;
-      Result     : out Instruction_Result)
+     (Register_1 : General_Register_Number; B : Byte; Result : out Result_Type)
    is
       Value : constant Register_Word := Get_General_Register (Register_1);
    begin
@@ -342,9 +329,7 @@ package body Instructions is
    end Handle_Se_Vx_Byte;
 
    procedure Handle_Sne_Vx_Byte
-     (Register_1 : General_Register_Number;
-      B          : Byte;
-      Result     : out Instruction_Result)
+     (Register_1 : General_Register_Number; B : Byte; Result : out Result_Type)
    is
       Value : constant Register_Word := Get_General_Register (Register_1);
    begin
@@ -382,7 +367,7 @@ package body Instructions is
    end Handle_Rnd_Vx_Byte;
 
    procedure Handle_Skp_Vx
-     (Register_1 : General_Register_Number; Result : out Instruction_Result)
+     (Register_1 : General_Register_Number; Result : out Result_Type)
    is
       Key : constant Register_Word := Get_General_Register (Register_1);
    begin
@@ -397,7 +382,7 @@ package body Instructions is
    end Handle_Skp_Vx;
 
    procedure Handle_Sknp_Vx
-     (Register_1 : General_Register_Number; Result : out Instruction_Result)
+     (Register_1 : General_Register_Number; Result : out Result_Type)
    is
       Key : constant Register_Word := Get_General_Register (Register_1);
    begin
@@ -494,7 +479,7 @@ package body Instructions is
    procedure Handle_Se_Vx_Vy
      (Register_1 : General_Register_Number;
       Register_2 : General_Register_Number;
-      Result     : out Instruction_Result) is
+      Result     : out Result_Type) is
    begin
       if Get_General_Register (Register_1) = Get_General_Register (Register_2)
       then
@@ -578,7 +563,7 @@ package body Instructions is
    procedure Handle_Sne_Vx_Vy
      (Register_1 : General_Register_Number;
       Register_2 : General_Register_Number;
-      Result     : out Instruction_Result) is
+      Result     : out Result_Type) is
    begin
       if Get_General_Register (Register_1) /= Get_General_Register (Register_2)
       then
