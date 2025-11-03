@@ -1,5 +1,5 @@
 with Ada.Text_IO; use Ada.Text_IO;
-with Conversions;
+with BCD;
 with Display;
 with Sprites;
 with Stack;
@@ -460,8 +460,8 @@ package body Instructions is
 
    -- TODO: range check
    procedure Handle_Ld_B_Vx (Register_1 : General_Register_Number) is
-      BCD_Value              : constant Conversions.BCD :=
-        Conversions.To_BCD (Integer (Get_General_Register (Register_1)));
+      BCD_Value              : constant BCD.BCD_Array :=
+        BCD.To_BCD (Integer (Get_General_Register (Register_1)));
       Address_Register_Value : constant Address := Get_Address_Register;
    begin
       for I in BCD_Value'Range loop
