@@ -57,36 +57,6 @@ package Registers is
        ((Get_General_Register (Number_2)'Old and 1) = 1 and then Get_VF = 1)
        or else Get_VF = 0;
 
-   procedure And_General_Register
-     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
-   with
-     Post =>
-       (Get_General_Register (Number_1)
-        = (Get_General_Register (Number_1)'Old
-           and Get_General_Register (Number_2)'Old))
-       and Get_VF = 0;
-
-   procedure Or_General_Register
-     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
-   with
-     Post =>
-       (Get_General_Register (Number_1)
-        = (Get_General_Register (Number_1)'Old
-           or Get_General_Register
-                (Number_2)'Old)) -- Register 2 is not directly changed, but
-       -- due to possible aliasing with register 1
-       -- we have to use 'old here to
-       and Get_VF = 0;
-
-   procedure Xor_General_Register
-     (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
-   with
-     Post =>
-       (Get_General_Register (Number_1)
-        = (Get_General_Register (Number_1)'Old
-           xor Get_General_Register (Number_2)'Old))
-       and Get_VF = 0;
-
    function Get_General_Register
      (Number : General_Register_Number) return Register_Word;
 

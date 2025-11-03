@@ -2,9 +2,8 @@ with Ada.Strings.Bounded;
 with Registers; use Registers;
 with Memory;    use Memory;
 
--- instruction names are as described here:
+-- instruction names and semantics are as described here:
 -- http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.1
--- The semantics are sometimes a bit off in that spec, so use some test roms
 
 package Instructions is
    pragma Assertion_Policy (Check);
