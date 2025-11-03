@@ -263,10 +263,9 @@ package body Instructions is
 
    procedure Handle_Sys_Addr (Target_Address : Address) is
    begin
-      Put_Line
-        ("The SYS  instruction is only used on the old computers on which Chip-8 was originally implemented. Ignoring it. (Target_Address = "
-         & Target_Address'Image
-         & ")");
+      -- The SYS  instruction is only used on the old computers
+      -- on which Chip-8 was originally implemented. We ignore it.
+      return;
    end Handle_Sys_Addr;
 
    procedure Handle_Jp_Addr
