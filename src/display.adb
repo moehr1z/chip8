@@ -127,21 +127,21 @@ package body Display is
                     not Display_Array (Current_X, Current_Y);
                end if;
 
-               Current_X := Current_X + 1;
-
                -- Sprites that go over right side of screen get clipped (quirk)
                if Current_X = X_Coordinate'Last then
                   exit Process_Each_Bit;
                end if;
+
+               Current_X := Current_X + 1;
             end loop Process_Each_Bit;
          end;
-         Current_Y := Current_Y + 1;
-         Current_X := X_Pos;
-
          -- Sprites that go over bottom side of screen get clipped (quirk)
          if Current_Y = Y_Coordinate'Last then
             exit Process_Each_Row;
          end if;
+
+         Current_Y := Current_Y + 1;
+         Current_X := X_Pos;
       end loop Process_Each_Row;
 
       Registers.Set_VF (Collision);
