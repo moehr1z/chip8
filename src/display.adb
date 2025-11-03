@@ -3,6 +3,8 @@ with SDL.Video.Windows.Makers;
 with SDL.Video.Renderers.Makers;
 with SDL.Error;
 with Ada.Strings; use Ada.Strings;
+with Results;
+use Results.Result_Bounded_String;
 
 package body Display is
 
