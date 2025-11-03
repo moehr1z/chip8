@@ -11,7 +11,7 @@ package Results is
             null;
 
          when False =>
-            Error : Bounded_String;
+            Message : Bounded_String;
       end case;
    end record;
 end Results;
