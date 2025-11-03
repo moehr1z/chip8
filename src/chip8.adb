@@ -18,7 +18,7 @@ with Registers;
 
 procedure Chip8 is
    Rom        : Unbounded_String := To_Unbounded_String ("Default.ch8");
-   Batch_Size : Integer := 600;
+   Batch_Size : Integer := 10;
    Scaling    : Integer := 20;
 
    Display_Init_Result   : Display.Display_Result;
