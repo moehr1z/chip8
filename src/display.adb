@@ -107,12 +107,14 @@ package body Display is
       Collision     : Boolean := False;
    begin
 
+      Process_Each_Row :
       for Row_Index in Target_Sprite'Range loop
          declare
             Byte         : constant Sprite_Row_Value :=
               Target_Sprite (Row_Index);
             Sprite_Value : Boolean := False;
          begin
+            Process_Each_Bit :
             for Bit_Index in 0 .. 7 loop
                Sprite_Value := (Byte and (2#10000000# / 2**Bit_Index)) /= 0;
 
@@ -126,11 +128,21 @@ package body Display is
                end if;
 
                Current_X := Current_X + 1;
-            end loop;
+
+               -- Sprites that go over right side of screen get clipped (quirk)
+               if Current_X = X_Coordinate'Last then
+                  exit Process_Each_Bit;
+               end if;
+            end loop Process_Each_Bit;
          end;
          Current_Y := Current_Y + 1;
          Current_X := X_Pos;
-      end loop;
+
+         -- Sprites that go over bottom side of screen get clipped (quirk)
+         if Current_Y = Y_Coordinate'Last then
+            exit Process_Each_Row;
+         end if;
+      end loop Process_Each_Row;
 
       Registers.Set_VF (Collision);
    end Draw_Sprite;
