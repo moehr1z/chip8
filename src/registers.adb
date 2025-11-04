@@ -1,6 +1,8 @@
 with Instructions;
 
-package body Registers is
+package body Registers
+  with SPARK_Mode => On
+is
    procedure Set_General_Register
      (Number : General_Register_Number; Value : Register_Word) is
    begin

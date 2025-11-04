@@ -1,6 +1,8 @@
 with Memory; use Memory;
 
-package Registers is
+package Registers
+  with SPARK_Mode => On
+is
    type Register_Word is mod 2**8;
    type General_Register_Number is range 0 .. 16#F#;
 
@@ -14,11 +16,11 @@ package Registers is
      (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
    with
      Post =>
-       ((Integer (Get_General_Register (Number_1)'Old)
-         + Integer (Get_General_Register (Number_2)'Old)
-         > Integer (Register_Word'Last))
-        and then Get_VF = 1)
-       or else Get_VF = 0;
+       (Get_General_Register (Number_1)'Old
+        + Get_General_Register (Number_2)'Old
+        <= Register_Word'Last
+        and then Get_VF = 0)
+       or else Get_VF = 1;
 
    procedure Sub_General_Register
      (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
@@ -66,7 +68,7 @@ package Registers is
 
    procedure Increment_Program_Counter
    with
-     Pre  => Get_Program_Counter < User_Address'Last,
+     Pre  => Get_Program_Counter = User_Address'Last - 2,
      Post => Get_Program_Counter = Get_Program_Counter'Old + 2;
 
    function Get_Program_Counter return User_Address;
