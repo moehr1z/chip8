@@ -1,9 +1,9 @@
-with Ada.Strings.Bounded;
 with Memory;  use Memory;
 with Sprites; use Sprites;
 with SDL.Video.Windows;
 with SDL.Video.Renderers;
 with Results; use Results;
+use Results.Result_Bounded_String;
 
 -- TODO: user definable colors
 
