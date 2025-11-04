@@ -1,4 +1,6 @@
-package body Keypad is
+package body Keypad
+  with SPARK_Mode => On
+is
    function Scan_Code_To_Key (Code : Scan_Codes) return Key_Option is
    begin
       for K in Keymap'Range loop

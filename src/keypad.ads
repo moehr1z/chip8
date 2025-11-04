@@ -1,9 +1,9 @@
 with SDL.Events.Keyboards; use SDL.Events.Keyboards;
 with Registers;
 
--- TODO: error handling
-
-package Keypad is
+package Keypad
+  with SPARK_Mode => On
+is
    Waiting_For_Input          : Boolean := False;
    Waiting_For_Input_Register : Registers.General_Register_Number := 0;
 
