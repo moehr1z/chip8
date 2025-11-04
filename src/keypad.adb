@@ -1,9 +1,4 @@
-with SDL.Events.Events; use SDL.Events.Events;
-
 package body Keypad is
-   function Key_Is_Pressed (Key : Keypad_Key) return Boolean
-   is (Pressed_Keys (Key));
-
    function Scan_Code_To_Key (Code : Scan_Codes) return Key_Option is
    begin
       for K in Keymap'Range loop

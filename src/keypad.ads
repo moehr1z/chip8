@@ -1,5 +1,4 @@
 with SDL.Events.Keyboards; use SDL.Events.Keyboards;
-with Display;
 with Registers;
 
 -- TODO: error handling
