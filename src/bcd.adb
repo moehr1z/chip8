@@ -2,7 +2,7 @@ with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 
 package body BCD is
    function To_BCD (I : Natural) return BCD_Array is
-      Number_Digits : Natural :=
+      Number_Digits : constant Natural :=
         (if (I = 0)
          then 0
          else Natural (Float'Floor (Log (Float (I), 10.0))) + 1);
