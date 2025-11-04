@@ -102,7 +102,7 @@ begin
             case Current_Event.Common.Event_Type is
                when Key_Down =>
                   declare
-                     Key : Keypad.Key_Option :=
+                     Key : constant Keypad.Key_Option :=
                        Keypad.Scan_Code_To_Key
                          (Current_Event.Keyboard.Key_Sym.Scan_Code);
                   begin
@@ -113,7 +113,7 @@ begin
 
                when Key_Up =>
                   declare
-                     Key : Keypad.Key_Option :=
+                     Key : constant Keypad.Key_Option :=
                        Keypad.Scan_Code_To_Key
                          (Current_Event.Keyboard.Key_Sym.Scan_Code);
                   begin
