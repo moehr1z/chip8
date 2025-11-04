@@ -19,4 +19,8 @@ project Chip8 is
       for Artifacts (".") use ("share");
    end Install;
 
+   package Linker is
+      for Default_Switches ("Ada") use ("-lSDL2");
+   end Linker;
+
 end Chip8;
