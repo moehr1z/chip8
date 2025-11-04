@@ -1,6 +1,5 @@
 with Ada.Sequential_IO;
-with Sprites;     use Sprites;
-with Ada.Text_IO; use Ada.Text_IO;
+with Sprites; use Sprites;
 
 package body Memory is
    function Load (A : Address) return Memory_Word is
@@ -25,8 +24,6 @@ package body Memory is
       Current_Word : Memory_Word := 0;
    begin
       -- TODO: error handling (exceptions, file bigger than memory etc)
-      Put_Line ("Opening " & File_Name);
-
       Open (F, In_File, File_Name);
       while not End_Of_File (F) loop
          Read (F, Current_Word);
