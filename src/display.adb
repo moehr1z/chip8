@@ -2,7 +2,6 @@ with Registers;
 with SDL.Video.Windows.Makers;
 with SDL.Video.Renderers.Makers;
 with SDL.Error;
-with Ada.Strings; use Ada.Strings;
 
 package body Display is
 
@@ -12,8 +11,7 @@ package body Display is
 
       if not SDL.Initialise (Flags => SDL.Enable_Screen) then
          Result :=
-           (Success => False,
-            Message => To_Bounded_String (SDL.Error.Get, Right));
+           (Success => False, Message => To_Result_String (SDL.Error.Get));
          return;
       end if;
 
@@ -37,8 +35,7 @@ package body Display is
       exception
          when others =>
             Result :=
-              (Success => False,
-               Message => To_Bounded_String (SDL.Error.Get, Right));
+              (Success => False, Message => To_Result_String (SDL.Error.Get));
             return;
       end;
 
@@ -73,8 +70,7 @@ package body Display is
       exception
          when others =>
             Result :=
-              (Success => False,
-               Message => To_Bounded_String (SDL.Error.Get, Right));
+              (Success => False, Message => To_Result_String (SDL.Error.Get));
             return;
       end;
    end Update;

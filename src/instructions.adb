@@ -211,7 +211,7 @@ package body Instructions is
       return
         (Success => False,
          Message =>
-           To_Bounded_String
+           To_Result_String
              ("Cannot increase program counter because it already points to the last user address"));
    end Generate_Program_Counter_Error;
 
@@ -220,13 +220,13 @@ package body Instructions is
       return
         (Success => False,
          Message =>
-           To_Bounded_String ("Address out of user or font space bounds"));
+           To_Result_String ("Address out of user or font space bounds"));
    end Generate_Address_Bounds_Error;
 
    function Generate_Unknown_Opcode_Error return Result_Type is
    begin
       return
-        (Success => False, Message => To_Bounded_String ("Unknown opcode"));
+        (Success => False, Message => To_Result_String ("Unknown opcode"));
    end Generate_Unknown_Opcode_Error;
 
    -- Instruction handlers
@@ -242,7 +242,7 @@ package body Instructions is
    begin
       if Stack.Empty then
          Result :=
-           (Success => False, Message => To_Bounded_String ("Stack Empty"));
+           (Success => False, Message => To_Result_String ("Stack Empty"));
          return;
       end if;
 
@@ -278,7 +278,7 @@ package body Instructions is
 
       if Stack.Full then
          Result :=
-           (Success => False, Message => To_Bounded_String ("Stack Full"));
+           (Success => False, Message => To_Result_String ("Stack Full"));
          return;
       end if;
 

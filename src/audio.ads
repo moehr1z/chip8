@@ -1,6 +1,5 @@
 with Interfaces;
 with Results; use Results;
-use Results.Result_Bounded_String;
 with SDL.Audio.Devices;
 with SDL.Audio.Sample_Formats;
 

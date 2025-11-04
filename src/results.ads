@@ -1,9 +1,6 @@
-with Ada.Strings.Bounded;
-
 package Results is
-   package Result_Bounded_String is new
-     Ada.Strings.Bounded.Generic_Bounded_Length (Max => 100);
-   use Result_Bounded_String;
+   Max_String_Length : constant := 100;
+   type Result_String is new String (1 .. 100);
 
    type Result_Type (Success : Boolean := True) is record
       case Success is
@@ -11,7 +8,9 @@ package Results is
             null;
 
          when False =>
-            Message : Bounded_String;
+            Message : Result_String;
       end case;
    end record;
+
+   function To_Result_String (S : String) return Result_String;
 end Results;

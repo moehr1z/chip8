@@ -1,5 +1,4 @@
 with SDL.Error;
-with Ada.Strings;                       use Ada.Strings;
 with Ada.Numerics;                      use Ada.Numerics;
 with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
 with Timers;                            use Timers;
@@ -9,8 +8,7 @@ package body Audio is
    begin
       if not SDL.Initialise (Flags => SDL.Enable_Audio) then
          Result :=
-           (Success => False,
-            Message => To_Bounded_String (SDL.Error.Get, Right));
+           (Success => False, Message => To_Result_String (SDL.Error.Get));
          return;
       end if;
 
