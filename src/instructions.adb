@@ -1,4 +1,3 @@
-with Ada.Text_IO; use Ada.Text_IO;
 with BCD;
 with Display;
 with Sprites;
@@ -6,8 +5,6 @@ with Stack;
 with Timers;
 with Keypad;
 with Random_Numbers;
-with Results;
-use Results.Result_Bounded_String;
 
 package body Instructions is
    procedure Step (Result : out Result_Type) is
@@ -42,7 +39,7 @@ package body Instructions is
                   Handle_Ret (Result);
 
                when others =>
-                  Handle_Sys_Addr (Address (I.NNN_Value));
+                  Handle_Sys_Addr;
             end case;
 
          when 16#1000# =>
@@ -253,7 +250,7 @@ package body Instructions is
       Set_Program_Counter (Return_Address);
    end Handle_Ret;
 
-   procedure Handle_Sys_Addr (Target_Address : Address) is
+   procedure Handle_Sys_Addr is
    begin
       -- The SYS  instruction is only used on the old computers
       -- on which Chip-8 was originally implemented. We ignore it.
@@ -404,7 +401,6 @@ package body Instructions is
    end Handle_Ld_Vx_Dt;
 
    procedure Handle_Ld_Vx_K (Register_1 : General_Register_Number) is
-      Key : Keypad.Keypad_Key;
    begin
       Keypad.Waiting_For_Input := True;
       Keypad.Waiting_For_Input_Register := Register_1;

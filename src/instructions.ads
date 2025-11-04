@@ -1,7 +1,7 @@
-with Ada.Strings.Bounded;
 with Registers; use Registers;
 with Memory;    use Memory;
 with Results;   use Results;
+use Results.Result_Bounded_String;
 
 -- instruction names and semantics are as described here:
 -- http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.1
@@ -50,7 +50,7 @@ private
    procedure Handle_Cls;
    procedure Handle_Ret (Result : out Result_Type);
 
-   procedure Handle_Sys_Addr (Target_Address : Address);
+   procedure Handle_Sys_Addr;
    procedure Handle_Jp_Addr
      (Target_Address : Address; Result : out Result_Type);
    procedure Handle_Call_Addr
