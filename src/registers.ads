@@ -15,45 +15,44 @@ is
    procedure Add_General_Register
      (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
    with
-     Post =>
-       (Get_General_Register (Number_1)'Old
-        + Get_General_Register (Number_2)'Old
-        <= Register_Word'Last
-        and then Get_VF = 0)
-       or else Get_VF = 1;
+     Contract_Cases =>
+       (Integer (Get_General_Register (Number_1))
+        + Integer (Get_General_Register (Number_2))
+        > Integer (Register_Word'Last) => Get_VF = 1,
+        others                         => Get_VF = 0);
 
    procedure Sub_General_Register
      (Number_1 : General_Register_Number; Number_2 : General_Register_Number)
    with
-     Post =>
-       (Get_General_Register (Number_1)'Old
-        >= Get_General_Register (Number_2)'Old
-        and then Get_VF = 1)
-       or else Get_VF = 0;
+     Contract_Cases =>
+       (Get_General_Register (Number_1) >= Get_General_Register (Number_2) =>
+          Get_VF = 1,
+        others                                                             =>
+          Get_Vf = 0);
 
    -- Target = Other - Target
    procedure SubN_General_Register
      (Target : General_Register_Number; Other : General_Register_Number)
    with
-     Post =>
-       (Get_General_Register (Other)'Old >= Get_General_Register (Target)'Old
-        and then Get_VF = 1)
-       or else Get_VF = 0;
+     Contract_Cases =>
+       (Get_General_Register (Other) >= Get_General_Register (Target) =>
+          Get_VF = 1,
+        others                                                        =>
+          Get_VF = 0);
 
    procedure Shift_Left_General_Register (Number : General_Register_Number)
    with
-     Post =>
-       ((Get_General_Register (Number)'Old
+     Contract_Cases =>
+       ((Get_General_Register (Number)
          and Register_Word (Register_Word'Modulus / 2))
-        /= 0
-        and then Get_VF = 1)
-       or else Get_VF = 0;
+        /= 0   => Get_VF = 1,
+        others => Get_VF = 0);
 
    procedure Shift_Right_General_Register (Number : General_Register_Number)
    with
-     Post =>
-       ((Get_General_Register (Number)'Old and 1) = 1 and then Get_VF = 1)
-       or else Get_VF = 0;
+     Contract_Cases =>
+       ((Get_General_Register (Number) and 1) = 1 => Get_VF = 1,
+        others                                    => Get_VF = 0);
 
    function Get_General_Register
      (Number : General_Register_Number) return Register_Word;
