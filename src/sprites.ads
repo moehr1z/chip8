@@ -1,4 +1,6 @@
-package Sprites is
+package Sprites
+  with SPARK_Mode => On
+is
    Max_Sprite_Height : constant Integer := 15;
 
    type Sprite_Row_Value is mod 2**8;
