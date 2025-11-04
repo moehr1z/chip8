@@ -1,7 +1,8 @@
 with Memory; use Memory;
 
-package Stack is
-   pragma SPARK_Mode;
+package Stack
+  with SPARK_Mode => On
+is
 
    Capacity : constant := 16;
 

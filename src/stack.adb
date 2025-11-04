@@ -1,5 +1,6 @@
-package body Stack is
-   pragma SPARK_Mode;
+package body Stack
+  with SPARK_Mode => On
+is
 
    procedure Push (I : User_Address) is
    begin
@@ -13,15 +14,11 @@ package body Stack is
       Top := Top - 1;
    end Pop;
 
-   function Size return Integer is
-   begin
-      return Top;
-   end Size;
+   function Size return Integer
+   is (Top);
 
-   function Peek return User_Address is
-   begin
-      return Items (Top);
-   end Peek;
+   function Peek return User_Address
+   is (Items (Top));
 
    function Empty return Boolean
    is (Top = 0);
