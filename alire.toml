@@ -16,3 +16,6 @@ development.contracts = "Yes"
 
 [[depends-on]]
 sdlada = "^2.5.20"
+
+[[depends-on]]
+gnatprove = "^13.2.1"
