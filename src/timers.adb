@@ -1,4 +1,6 @@
-package body Timers is
+package body Timers
+  with SPARK_Mode => On
+is
    procedure Update_Timers is
    begin
       Update_Delay_Timer;

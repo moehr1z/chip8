@@ -1,4 +1,6 @@
-package Timers is
+package Timers
+  with SPARK_Mode => On
+is
    Rate_In_Hertz : constant Positive := 60;
 
    type Timer is range 0 .. 2**8 - 1;
