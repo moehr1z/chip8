@@ -1,4 +1,6 @@
 package body Stack is
+   pragma SPARK_Mode;
+
    procedure Push (I : User_Address) is
    begin
       Top := Top + 1;

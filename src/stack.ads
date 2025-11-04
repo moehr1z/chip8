@@ -1,6 +1,8 @@
 with Memory; use Memory;
 
 package Stack is
+   pragma SPARK_Mode;
+
    Capacity : constant := 16;
 
    procedure Push (I : User_Address)
