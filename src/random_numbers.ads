@@ -1,8 +1,6 @@
 with Ada.Numerics.Discrete_Random;
 
 package Random_Numbers is
-   pragma Assertion_Policy (Check);
-
    type Random_Number is mod 2**8;
    procedure Init
    with Post => Was_Initialized;

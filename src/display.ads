@@ -8,8 +8,6 @@ with Results; use Results;
 -- TODO: user definable colors
 
 package Display is
-   pragma Assertion_Policy (Check);
-
    Width  : constant := 64;
    Height : constant := 32;
 

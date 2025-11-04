@@ -1,8 +1,6 @@
 with Memory; use Memory;
 
 package Registers is
-   pragma Assertion_Policy (Check);
-
    type Register_Word is mod 2**8;
    type General_Register_Number is range 0 .. 16#F#;
 

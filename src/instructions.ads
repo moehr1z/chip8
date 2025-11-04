@@ -7,8 +7,6 @@ with Results;   use Results;
 -- http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.1
 
 package Instructions is
-   pragma Assertion_Policy (Check);
-
    Instruction_Length : constant Integer :=
      2; -- 2 Memory_Words per Instruction
    type Opcode is mod 2**(Instruction_Length * 8);

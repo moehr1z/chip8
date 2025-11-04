@@ -5,8 +5,6 @@ with Registers;
 -- TODO: error handling
 
 package Keypad is
-   pragma Assertion_Policy (Check);
-
    Waiting_For_Input          : Boolean := False;
    Waiting_For_Input_Register : Registers.General_Register_Number := 0;
 

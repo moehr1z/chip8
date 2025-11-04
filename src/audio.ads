@@ -5,8 +5,6 @@ with SDL.Audio.Devices;
 with SDL.Audio.Sample_Formats;
 
 package Audio is
-   pragma Assertion_Policy (Check);
-
    procedure Init (Result : out Result_Type);
    function Was_Initialized return Boolean;
 

@@ -1,8 +1,6 @@
 with Memory; use Memory;
 
 package Stack is
-   pragma Assertion_Policy (Check);
-
    Capacity : constant := 16;
 
    procedure Push (I : User_Address)
