@@ -76,9 +76,8 @@ is
 
    procedure Increment_Program_Counter is
    begin
-      Program_Counter :=
-        User_Address
-          (Integer (Program_Counter) + Memory.Memory_Words_Per_Instruction);
+      Set_Program_Counter
+        (Get_Program_Counter + Memory.Memory_Words_Per_Instruction);
    end Increment_Program_Counter;
 
    function Get_Program_Counter return User_Address
