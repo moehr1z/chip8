@@ -4,8 +4,6 @@ with SDL.Video.Windows;
 with SDL.Video.Renderers;
 with Results; use Results;
 
--- TODO: user definable colors
-
 package Display is
    Width  : constant := 64;
    Height : constant := 32;
