@@ -1,7 +1,9 @@
 with Ada.Sequential_IO;
 with Sprites; use Sprites;
 
-package body Memory is
+package body Memory
+  with SPARK_Mode => On
+is
    function Load (A : Address) return Memory_Word is
    begin
       if A in User_Address'Range then
@@ -16,7 +18,8 @@ package body Memory is
       Data_Space (A) := W;
    end Store;
 
-   procedure Load_Program (File_Name : String) is
+   -- TODO: Spark
+   procedure Load_Program (File_Name : String) with SPARK_Mode => Off is
       Loader_Index : User_Address := Data_Space'First;
       package Word_IO is new Ada.Sequential_IO (Memory_Word);
       use Word_IO;
