@@ -21,6 +21,7 @@ procedure Chip8 is
    Batch_Size : Integer := 10;
    Scaling    : Integer := 20;
 
+   Load_Result           : Results.Result_Type;
    Audio_Init_Result     : Results.Result_Type;
    Display_Init_Result   : Results.Result_Type;
    Display_Update_Result : Results.Result_Type;
@@ -84,7 +85,14 @@ begin
    Audio.Init (Audio_Init_Result);
 
    Memory.Load_Font;
-   Memory.Load_Program (To_String (Rom));
+   Memory.Load_Program (To_String (Rom), Load_Result);
+   if not Load_Result.Success then
+      Put_Line
+        ("Could not load program (" & Display_Init_Result.Message'Image & ")");
+      Dump_State;
+      Set_Exit_Status (1);
+      return;
+   end if;
 
    -- main loop
    declare

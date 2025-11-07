@@ -1,3 +1,5 @@
+with Results; use Results;
+
 package Memory
   with SPARK_Mode => On
 is
@@ -16,7 +18,7 @@ is
    procedure Store (A : User_Address; W : Memory_Word)
    with Post => Load (A) = W;
 
-   procedure Load_Program (File_Name : String);
+   procedure Load_Program (File_Name : String; Result : out Result_Type);
    procedure Load_Font;  -- Loads the default hex font to the Fonts_Space
 
    function Is_User_Address (Value : Integer) return Boolean;
