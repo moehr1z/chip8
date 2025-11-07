@@ -1,17 +1,20 @@
 with Memory;  use Memory;
 with Sprites; use Sprites;
-with SDL.Video.Windows;
-with SDL.Video.Renderers;
 with Results; use Results;
 
-package Display is
+package Display
+  with SPARK_Mode => On
+is
    Width  : constant := 64;
    Height : constant := 32;
 
    type X_Coordinate is mod Width;
    type Y_Coordinate is mod Height;
 
-   procedure Init (Scale : Positive := 1; Result : out Result_Type)
+   type Display_Array_Type is
+     array (X_Coordinate'Range, Y_Coordinate'Range) of Boolean;
+
+   procedure Init (Scale : Positive; Result : out Result_Type)
    with
      Pre  => not Was_Initialized,
      Post =>
@@ -31,12 +34,8 @@ package Display is
    procedure Clear;
 
 private
-   Display_Array : array (X_Coordinate'Range, Y_Coordinate'Range) of Boolean :=
-     [others => [others => False]];
-
-   Window   : SDL.Video.Windows.Window;
-   Renderer : SDL.Video.Renderers.Renderer;
+   Display_Array : Display_Array_Type := [others => [others => False]];
 
    Initialized   : Boolean := False;
-   Display_Scale : Positive := 1;
+   Display_Scale : Positive := 20;
 end Display;
