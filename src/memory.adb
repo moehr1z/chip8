@@ -4,14 +4,10 @@ with Sprites; use Sprites;
 package body Memory
   with SPARK_Mode => On
 is
-   function Load (A : Address) return Memory_Word is
-   begin
-      if A in User_Address'Range then
-         return Data_Space (A);
-      else
-         return Interpreter_Space (A);
-      end if;
-   end Load;
+   function Load (A : Address) return Memory_Word
+   is (if A in User_Address'Range
+       then Data_Space (A)
+       else Interpreter_Space (A));
 
    procedure Store (A : User_Address; W : Memory_Word) is
    begin
@@ -37,16 +33,25 @@ is
    end Load_Program;
 
    procedure Load_Font is
-      Current_Address : Interpreter_Address := Interpreter_Space'First;
+      Start_Address : constant := Interpreter_Space'First;
    begin
       for Index_Sprite in Hex_Sprites'Range loop
          declare
             Current_Sprite : constant Hex_Sprite := Hex_Sprites (Index_Sprite);
          begin
             for Index_Byte in Current_Sprite'Range loop
-               Interpreter_Space (Current_Address) :=
-                 Memory_Word (Current_Sprite (Index_Byte));
-               Current_Address := Current_Address + 1;
+               declare
+                  Sprite_Offset : constant Natural :=
+                    Natural (Index_Sprite * Hex_Sprites'Length);
+                  Byte_Offset   : constant Natural := Natural (Index_Byte - 1);
+               begin
+
+                  Interpreter_Space
+                    (Interpreter_Address
+                       (Start_Address + Sprite_Offset + Byte_Offset)) :=
+                    Memory_Word (Current_Sprite (Index_Byte));
+
+               end;
             end loop;
          end;
       end loop;
