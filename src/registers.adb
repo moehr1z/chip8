@@ -1,5 +1,3 @@
-with Instructions;
-
 package body Registers
   with SPARK_Mode => On
 is
@@ -80,7 +78,7 @@ is
    begin
       Program_Counter :=
         User_Address
-          (Integer (Program_Counter) + Instructions.Instruction_Length);
+          (Integer (Program_Counter) + Memory.Memory_Words_Per_Instruction);
    end Increment_Program_Counter;
 
    function Get_Program_Counter return User_Address

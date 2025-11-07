@@ -67,8 +67,12 @@ is
 
    procedure Increment_Program_Counter
    with
-     Pre  => Get_Program_Counter = User_Address'Last - 2,
-     Post => Get_Program_Counter = Get_Program_Counter'Old + 2;
+     Pre  =>
+       Get_Program_Counter
+       <= User_Address'Last - Memory.Memory_Words_Per_Instruction,
+     Post =>
+       Get_Program_Counter
+       = Get_Program_Counter'Old + Memory.Memory_Words_Per_Instruction;
 
    function Get_Program_Counter return User_Address;
 

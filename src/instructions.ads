@@ -6,9 +6,7 @@ with Results;   use Results;
 -- http://devernay.free.fr/hacks/chip8/C8TECH10.HTM#3.1
 
 package Instructions is
-   Instruction_Length : constant Integer :=
-     2; -- 2 Memory_Words per Instruction
-   type Opcode is mod 2**(Instruction_Length * 8);
+   type Opcode is mod 2**(Memory.Memory_Words_Per_Instruction * 8);
 
    procedure Step (Result : out Result_Type);  --  does fetch, decode & execute
 

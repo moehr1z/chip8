@@ -7,6 +7,8 @@ package Memory is
    subtype Interpreter_Address is
      Address range 16#000# .. 16#1FF#;  -- Interpreter space -> read only
 
+   Memory_Words_Per_Instruction : constant := 2;
+
    function Load (A : Address) return Memory_Word;
 
    procedure Store (A : User_Address; W : Memory_Word)
