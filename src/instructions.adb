@@ -441,14 +441,18 @@ package body Instructions is
 
    -- TODO: range check
    procedure Handle_Ld_B_Vx (Register_1 : General_Register_Number) is
-      BCD_Value              : constant BCD.BCD_Array :=
+      BCD_Value       : constant BCD.BCD_Array :=
         BCD.To_BCD (Integer (Get_General_Register (Register_1)));
-      Address_Register_Value : constant Address := Get_Address_Register;
+      Current_Address : Address := Get_Address_Register;
    begin
+      for I in 0 .. 2 - BCD_Value'Length loop
+         Memory.Store (Current_Address, 0);
+         Current_Address := Current_Address + 1;
+      end loop;
+
       for I in BCD_Value'Range loop
-         Memory.Store
-           (Address_Register_Value + Address ((I - 1)),
-            Memory_Word (BCD_Value (I)));
+         Memory.Store (Current_Address, Memory_Word (BCD_Value (I)));
+         Current_Address := Current_Address + 1;
       end loop;
    end Handle_Ld_B_Vx;
 
