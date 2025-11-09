@@ -1,7 +1,9 @@
 with Interfaces; use Interfaces;
 with Results;    use Results;
 
-package Audio is
+package Audio
+  with SPARK_Mode => On
+is
    procedure Init (Result : out Result_Type);
 
    procedure Handle_Audio;
@@ -17,4 +19,7 @@ private
    Frequency   : constant := 500; -- in HZ
    Sample_Rate : constant := 44_100;
    Phase       : Natural := 0;
+
+   Audio_Is_Paused : Boolean := True
+   with Ghost;
 end Audio;
