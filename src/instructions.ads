@@ -10,7 +10,6 @@ package Instructions is
 
    procedure Step (Result : out Result_Type);  --  does fetch, decode & execute
 
-   Current_Opcode : Opcode := Opcode'First;
 private
    type NNN is mod 2**12;
    type N is mod 2**4;

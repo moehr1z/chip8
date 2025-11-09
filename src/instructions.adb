@@ -27,7 +27,6 @@ package body Instructions is
           ((Integer (First_Byte) * (Integer (Memory_Word'Last) + 1))
            + Integer (Second_Byte));
    begin
-      Current_Opcode := Code;
       return Code;
    end Fetch;
 

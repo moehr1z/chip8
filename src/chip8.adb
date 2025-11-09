@@ -35,7 +35,6 @@ procedure Chip8 is
          Put_Line (I'Image & ": " & Registers.Get_General_Register (I)'Image);
       end loop;
       Put_Line ("Address Register: " & Registers.Get_Address_Register'Image);
-      Put_Line ("Current Opcode: " & Instructions.Current_Opcode'Image);
    end Dump_State;
 begin
    -- parse command line options
