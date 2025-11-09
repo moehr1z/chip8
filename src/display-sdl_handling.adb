@@ -33,7 +33,6 @@ package body Display.SDL_Handling is
          Renderer.Clear;
          Renderer.Present;
 
-         Initialized := True;
       exception
          when others =>
             Result :=
@@ -41,9 +40,6 @@ package body Display.SDL_Handling is
             return;
       end;
    end Init;
-
-   function Was_Initialized return Boolean
-   is (Initialized);
 
    -- TODO: bounds check + more fine granular exception handling
    procedure Render
