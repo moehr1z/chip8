@@ -3,11 +3,7 @@ with SDL.Video.Renderers.Makers;
 with SDL.Error;
 
 package body Display.SDL_Handling is
-   procedure Init
-     (Scale  : Positive;
-      Width  : Integer;
-      Height : Integer;
-      Result : out Result_Type) is
+   procedure Init (Scale : Positive; Result : out Result_Type) is
    begin
       Display_Scale := Scale;
 

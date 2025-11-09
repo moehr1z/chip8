@@ -4,7 +4,7 @@ with Display.SDL_Handling;
 package body Display is
    procedure Init (Scale : Positive; Result : out Result_Type) is
    begin
-      Display.SDL_Handling.Init (Scale, Width, Height, Result);
+      Display.SDL_Handling.Init (Scale, Result);
    end Init;
 
    procedure Update (Result : out Result_Type) is
