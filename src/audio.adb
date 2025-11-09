@@ -22,11 +22,7 @@ package body Audio is
 
       Pause (Audio_Device, True);
 
-      Initialized := True;
    end Init;
-
-   function Was_Initialized return Boolean
-   is (Initialized);
 
    procedure Handle_Audio is
    begin

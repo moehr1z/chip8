@@ -5,10 +5,8 @@ with SDL.Audio.Sample_Formats;
 
 package Audio is
    procedure Init (Result : out Result_Type);
-   function Was_Initialized return Boolean;
 
-   procedure Handle_Audio
-   with Pre => Was_Initialized;
+   procedure Handle_Audio;
 private
    subtype Sample is Interfaces.Integer_8;
    type Sample_Index is range 0 .. 4095;
@@ -21,7 +19,6 @@ private
         Buffer_Type  => Sample_Buffer);
    use SDL_Audio_Device;
 
-   Initialized  : Boolean := False;
    Audio_Device : SDL_Audio_Device.Device;
 
    procedure Generate_Tone
