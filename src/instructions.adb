@@ -315,7 +315,7 @@ package body Instructions is
       Value : constant Register_Word := Get_General_Register (Register_1);
    begin
       if Byte (Value) = B then
-         if Get_Program_Counter = User_Address'Last then
+         if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
          end if;
@@ -331,7 +331,7 @@ package body Instructions is
       Value : constant Register_Word := Get_General_Register (Register_1);
    begin
       if Byte (Value) /= B then
-         if Get_Program_Counter = User_Address'Last then
+         if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
          end if;
@@ -369,7 +369,7 @@ package body Instructions is
       Key : constant Register_Word := Get_General_Register (Register_1);
    begin
       if Keypad.Pressed_Keys (Keypad.Keypad_Key (Key)) then
-         if Get_Program_Counter = User_Address'Last then
+         if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
          end if;
@@ -384,7 +384,7 @@ package body Instructions is
       Key : constant Register_Word := Get_General_Register (Register_1);
    begin
       if not Keypad.Pressed_Keys (Keypad.Keypad_Key (Key)) then
-         if Get_Program_Counter = User_Address'Last then
+         if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
          end if;
@@ -483,7 +483,7 @@ package body Instructions is
    begin
       if Get_General_Register (Register_1) = Get_General_Register (Register_2)
       then
-         if Get_Program_Counter = User_Address'Last then
+         if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
          end if;
@@ -567,7 +567,7 @@ package body Instructions is
    begin
       if Get_General_Register (Register_1) /= Get_General_Register (Register_2)
       then
-         if Get_Program_Counter = User_Address'Last then
+         if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
          end if;
