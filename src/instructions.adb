@@ -10,6 +10,11 @@ package body Instructions is
    procedure Step (Result : out Result_Type) is
       O : constant Opcode := Fetch;
    begin
+      if not Can_Increment_Program_Counter then
+         Result := Generate_Program_Counter_Error;
+         return;
+      end if;
+
       Increment_Program_Counter;
       Execute (O, Result);
    end Step;
