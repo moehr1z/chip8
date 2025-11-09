@@ -20,8 +20,6 @@ is
 
    procedure Load_Program (File_Name : String; Result : out Result_Type);
    procedure Load_Font;  -- Loads the default hex font to the Fonts_Space
-
-   function Is_User_Address (Value : Integer) return Boolean;
 private
    Data_Space        : array (User_Address) of Memory_Word := [others => 0];
    Interpreter_Space : array (Interpreter_Address) of Memory_Word :=

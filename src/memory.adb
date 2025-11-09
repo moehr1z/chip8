@@ -80,7 +80,4 @@ is
          end;
       end loop;
    end Load_Font;
-
-   function Is_User_Address (Value : Integer) return Boolean
-   is (Value in Integer (User_Address'First) .. Integer (User_Address'Last));
 end Memory;
