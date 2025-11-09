@@ -10,7 +10,7 @@ is
    end Init;
 
    procedure Handle_Audio is
-      Paused : Boolean := Timers.Get_Sound_Timer = 0;
+      Paused : constant Boolean := Timers.Get_Sound_Timer = 0;
    begin
       Audio.SDL_Handling.Pause_Sound (Paused);
       -- gnatprove complains that Handle_Audio has no effect,
