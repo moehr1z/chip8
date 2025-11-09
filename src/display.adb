@@ -5,11 +5,7 @@ package body Display is
    procedure Init (Scale : Positive; Result : out Result_Type) is
    begin
       Display.SDL_Handling.Init (Scale, Width, Height, Result);
-      Initialized := True;
    end Init;
-
-   function Was_Initialized return Boolean
-   is (Initialized);
 
    procedure Update (Result : out Result_Type) is
    begin
