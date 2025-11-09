@@ -1,7 +1,5 @@
 with Audio.SDL_Handling;
-with Ada.Numerics;                      use Ada.Numerics;
-with Ada.Numerics.Elementary_Functions; use Ada.Numerics.Elementary_Functions;
-with Timers;                            use Timers;
+with Timers; use Timers;
 
 package body Audio is
    procedure Init (Result : out Results.Result_Type) is
@@ -15,17 +13,17 @@ package body Audio is
    end Handle_Audio;
 
    procedure Fill_Sample_Buffer (Data : out Sample_Buffer) is
-      Step      : constant Float := 2.0 * Pi * Frequency * (1.0 / Sample_Rate);
-      Amplitude : constant := 2.0**5; -- Scaling factor
+      Period_Samples      : constant Natural := Sample_Rate / Frequency;
+      Half_Period_Samples : constant Natural := Period_Samples / 2;
    begin
       for I in Data'Range loop
-         Data (I) := Sample (Sin (Phase) * Amplitude);
-         Phase := Phase + Step;
-
-         -- We don't  want it to grow indefinitely, otherwise we lose precision
-         if Phase > 2.0 * Pi then
-            Phase := Phase - 2.0 * Pi;
+         if Phase < Half_Period_Samples then
+            Data (I) := Sample'Last;
+         else
+            Data (I) := Sample'First;
          end if;
+
+         Phase := (Phase + 1) mod Period_Samples;
       end loop;
    end Fill_Sample_Buffer;
 end Audio;
