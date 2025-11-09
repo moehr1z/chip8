@@ -83,6 +83,10 @@ is
    function Get_Program_Counter return User_Address
    is (Program_Counter);
 
+   function Can_Increment_Program_Counter return Boolean
+   is (Get_Program_Counter
+       <= Memory.User_Address'Last - Memory.Memory_Words_Per_Instruction);
+
    procedure Set_VF (B : Boolean) is
    begin
       Set_General_Register (VF, (if B then 1 else 0));

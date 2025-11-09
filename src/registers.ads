@@ -76,6 +76,8 @@ is
 
    function Get_Program_Counter return User_Address;
 
+   function Can_Increment_Program_Counter return Boolean;
+
    procedure Set_VF (B : Boolean)
    with Post => Get_VF = (if B then 1 else 0);
 
