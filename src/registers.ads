@@ -67,9 +67,7 @@ is
 
    procedure Increment_Program_Counter
    with
-     Pre  =>
-       Get_Program_Counter
-       <= User_Address'Last - Memory.Memory_Words_Per_Instruction,
+     Pre  => Can_Increment_Program_Counter,
      Post =>
        Get_Program_Counter
        = Get_Program_Counter'Old + Memory.Memory_Words_Per_Instruction;
