@@ -79,7 +79,7 @@ is
                   Result);
                return;
             else
-               Result := Generate_Unknown_Opcode_Error;
+               Result := Generate_Unknown_Opcode_Error (O);
                return;
             end if;
 
@@ -135,7 +135,7 @@ is
                   Handle_Shl_Vx (General_Register_Number (I.X_Value));
 
                when others =>
-                  Result := Generate_Unknown_Opcode_Error;
+                  Result := Generate_Unknown_Opcode_Error (O);
                   return;
             end case;
 
@@ -177,7 +177,7 @@ is
                   return;
 
                when others =>
-                  Result := Generate_Unknown_Opcode_Error;
+                  Result := Generate_Unknown_Opcode_Error (O);
                   return;
             end case;
 
@@ -215,12 +215,12 @@ is
                   Handle_Ld_Vx_I (General_Register_Number (I.X_Value));
 
                when others =>
-                  Result := Generate_Unknown_Opcode_Error;
+                  Result := Generate_Unknown_Opcode_Error (O);
                   return;
             end case;
 
          when others =>
-            Result := Generate_Unknown_Opcode_Error;
+            Result := Generate_Unknown_Opcode_Error (O);
             return;
       end case;
 
@@ -248,8 +248,9 @@ is
        Message =>
          To_Result_String ("Address out of user or font space bounds"));
 
-   function Generate_Unknown_Opcode_Error return Result_Type
-   is (Success => False, Message => To_Result_String ("Unknown opcode"));
+   function Generate_Unknown_Opcode_Error (O : Opcode) return Result_Type
+   is (Success => False,
+       Message => To_Result_String ("Unknown opcode (" & O'Image & ")"));
 
    -- Instruction handlers
    --

@@ -43,7 +43,7 @@ private
    -- same but when an address is not in user or font address space
    function Generate_Address_Bounds_Error return Result_Type;
 
-   function Generate_Unknown_Opcode_Error return Result_Type;
+   function Generate_Unknown_Opcode_Error (O : Opcode) return Result_Type;
 
    -- Instruction handlers
    procedure Handle_Cls;
