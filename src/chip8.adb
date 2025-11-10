@@ -21,12 +21,6 @@ procedure Chip8 is
    Batch_Size : Integer := 10;
    Scaling    : Integer := 20;
 
-   Load_Result           : Results.Result_Type;
-   Audio_Init_Result     : Results.Result_Type;
-   Display_Init_Result   : Results.Result_Type;
-   Display_Update_Result : Results.Result_Type;
-   Step_Result           : Results.Result_Type;
-
    procedure Dump_State is
    begin
       Put_Line ("Program Counter: " & Registers.Get_Program_Counter'Image);
@@ -36,64 +30,75 @@ procedure Chip8 is
       end loop;
       Put_Line ("Address Register: " & Registers.Get_Address_Register'Image);
    end Dump_State;
-begin
-   -- parse command line options
-   loop
-      begin
-         case Getopt ("r: b: s:") is
-            when 'r' =>
-               Rom := To_Unbounded_String (Parameter);
 
-            when 'b' =>
-               Batch_Size := Integer'Value (Parameter);
+   procedure Read_In_Args is
+   begin
+      loop
+         begin
+            case Getopt ("r: b: s:") is
+               when 'r' =>
+                  Rom := To_Unbounded_String (Parameter);
 
-            when 's' =>
-               Scaling := Integer'Value (Parameter);
+               when 'b' =>
+                  Batch_Size := Integer'Value (Parameter);
 
-            when ASCII.NUL =>
-               exit;
+               when 's' =>
+                  Scaling := Integer'Value (Parameter);
 
+               when ASCII.NUL =>
+                  exit;
+
+               when others =>
+                  Put_Line
+                    ("Unknown command line argument (" & Parameter & ")!");
+                  Set_Exit_Status (1);
+                  return;
+            end case;
+         exception
             when others =>
-               Put_Line ("Unknown command line argument (" & Parameter & ")!");
+               Put_Line ("Could not parse command line arguments!");
                Set_Exit_Status (1);
                return;
-         end case;
-      exception
-         when others =>
-            Put_Line ("Could not parse command line arguments!");
-            Set_Exit_Status (1);
-            return;
-      end;
+         end;
 
-   end loop;
+      end loop;
+   end Read_In_Args;
 
-   -- init everything
-   Random_Numbers.Init;
+   procedure Initialise is
+      Load_Result         : Results.Result_Type;
+      Audio_Init_Result   : Results.Result_Type;
+      Display_Init_Result : Results.Result_Type;
+   begin
+      Random_Numbers.Init;
 
-   Display.Init (Scale => Scaling, Result => Display_Init_Result);
-   if not Display_Init_Result.Success then
-      Put_Line
-        ("Could not initialize display ("
-         & Display_Init_Result.Message'Image
-         & ")");
-      Dump_State;
-      Set_Exit_Status (1);
-      return;
-   end if;
+      Display.Init (Scale => Scaling, Result => Display_Init_Result);
+      if not Display_Init_Result.Success then
+         Put_Line
+           ("Could not initialize display ("
+            & String (Display_Init_Result.Message)
+            & ")");
+         Dump_State;
+         Set_Exit_Status (1);
+         return;
+      end if;
 
-   Audio.Init (Audio_Init_Result);
+      Audio.Init (Audio_Init_Result);
 
-   Memory.Load_Font;
-   Memory.Load_Program (To_String (Rom), Load_Result);
-   if not Load_Result.Success then
-      Put_Line ("Could not load program (" & Load_Result.Message'Image & ")");
-      Dump_State;
-      Set_Exit_Status (1);
-      return;
-   end if;
+      Memory.Load_Font;
+      Memory.Load_Program (To_String (Rom), Load_Result);
+      if not Load_Result.Success then
+         Put_Line
+           ("Could not load program (" & String (Load_Result.Message) & ")");
+         Dump_State;
+         Set_Exit_Status (1);
+         return;
+      end if;
+   end Initialise;
 
-   -- main loop
-   declare
+   procedure Main_Loop is
+      Step_Result           : Results.Result_Type;
+      Display_Update_Result : Results.Result_Type;
+
       Micro         : constant Float := 10.0**6;
       Period        : constant Time_Span :=
         Microseconds (Integer (Micro / Float (Timers.Rate_In_Hertz)));
@@ -154,7 +159,7 @@ begin
             if Step_Result.Success = False then
                Put_Line
                  ("Could not execute instruction ("
-                  & Step_Result.Message'Image
+                  & String (Step_Result.Message)
                   & ")");
                Dump_State;
                Set_Exit_Status (1);
@@ -167,7 +172,7 @@ begin
          if not Display_Update_Result.Success then
             Put_Line
               ("Could not update display ("
-               & Display_Update_Result.Message'Image
+               & String (Display_Update_Result.Message)
                & ")");
             Dump_State;
             Set_Exit_Status (1);
@@ -183,5 +188,11 @@ begin
 
          delay until Next_Cycle;
       end loop;
-   end;
+   end Main_Loop;
+begin
+   Read_In_Args;
+
+   Initialise;
+
+   Main_Loop;
 end Chip8;
