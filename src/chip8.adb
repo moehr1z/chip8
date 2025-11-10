@@ -6,14 +6,15 @@ with Random_Numbers;
 with Results;
 with Timers;
 with Keypad;
-with Ada.Text_IO;             use Ada.Text_IO;
-with Ada.Real_Time;           use Ada.Real_Time;
-with Ada.Command_Line;        use Ada.Command_Line;
-with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
-with GNAT.Command_Line;       use GNAT.Command_Line;
-with SDL.Events.Events;       use SDL.Events.Events;
-with SDL.Events.Keyboards;    use SDL.Events.Keyboards;
-with Ada.Task_Identification; use Ada.Task_Identification;
+with Ada.Text_IO;            use Ada.Text_IO;
+with Ada.Real_Time;          use Ada.Real_Time;
+with Ada.Command_Line;       use Ada.Command_Line;
+with Ada.Strings.Unbounded;  use Ada.Strings.Unbounded;
+with GNAT.Command_Line;      use GNAT.Command_Line;
+with SDL.Events.Events;      use SDL.Events.Events;
+with SDL.Events.Keyboards;   use SDL.Events.Keyboards;
+with GNAT.OS_Lib;
+with Ada.Characters.Latin_1; use Ada.Characters.Latin_1;
 
 with Registers;
 
@@ -61,14 +62,12 @@ procedure Chip8 is
                when others =>
                   Put_Line
                     ("Unknown command line argument (" & Parameter & ")!");
-                  Set_Exit_Status (1);
-                  Abort_Task (Current_Task);
+                  GNAT.OS_Lib.OS_Exit (1);
             end case;
          exception
             when others =>
                Put_Line ("Could not parse command line arguments!");
-               Set_Exit_Status (1);
-               Abort_Task (Current_Task);
+               GNAT.OS_Lib.OS_Exit (1);
          end;
 
       end loop;
@@ -88,8 +87,7 @@ procedure Chip8 is
             & String (Display_Init_Result.Message)
             & ")");
          Dump_State;
-         Set_Exit_Status (1);
-         Abort_Task (Current_Task);
+         GNAT.OS_Lib.OS_Exit (1);
       end if;
 
       Audio.Init (Audio_Init_Result);
@@ -100,8 +98,7 @@ procedure Chip8 is
          Put_Line
            ("Could not load program (" & String (Load_Result.Message) & ")");
          Dump_State;
-         Set_Exit_Status (1);
-         Abort_Task (Current_Task);
+         GNAT.OS_Lib.OS_Exit (1);
       end if;
    end Initialise;
 
@@ -151,7 +148,7 @@ procedure Chip8 is
                   end;
 
                when SDL.Events.Quit =>
-                  Abort_Task (Current_Task);
+                  GNAT.OS_Lib.OS_Exit (0);
 
                when others =>
                   null;
@@ -172,8 +169,7 @@ procedure Chip8 is
                   & String (Step_Result.Message)
                   & ")");
                Dump_State;
-               Set_Exit_Status (1);
-               Abort_Task (Current_Task);
+               GNAT.OS_Lib.OS_Exit (1);
             end if;
 
          end loop;
@@ -185,8 +181,7 @@ procedure Chip8 is
                & String (Display_Update_Result.Message)
                & ")");
             Dump_State;
-            Set_Exit_Status (1);
-            Abort_Task (Current_Task);
+            GNAT.OS_Lib.OS_Exit (1);
          end if;
 
          Audio.Handle_Audio;
@@ -200,9 +195,9 @@ procedure Chip8 is
       end loop;
    end Main_Loop;
 begin
+   Set_Exit_Status (0);
+
    Read_In_Args;
-
    Initialise;
-
    Main_Loop;
 end Chip8;
