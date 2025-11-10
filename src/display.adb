@@ -1,7 +1,9 @@
 with Registers;
 with Display.SDL_Handling;
 
-package body Display is
+package body Display
+  with SPARK_Mode => On
+is
    procedure Init (Scale : Positive; Result : out Result_Type) is
    begin
       Display.SDL_Handling.Init (Scale, Result);
@@ -42,7 +44,7 @@ package body Display is
          declare
             Byte         : constant Sprite_Row_Value :=
               Target_Sprite (Row_Index);
-            Sprite_Value : Boolean := False;
+            Sprite_Value : Boolean;
          begin
             Process_Each_Bit :
             for Bit_Index in 0 .. 7 loop
