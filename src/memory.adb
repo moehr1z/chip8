@@ -7,18 +7,18 @@ package body Memory
 is
    function Load (A : Address) return Memory_Word
    is (if A in User_Address'Range
-       then Data_Space (A)
+       then User_Space (A)
        else Interpreter_Space (A));
 
    procedure Store (A : User_Address; W : Memory_Word) is
    begin
-      Data_Space (A) := W;
+      User_Space (A) := W;
    end Store;
 
    procedure Load_Program (File_Name : String; Result : out Result_Type)
    with SPARK_Mode => Off
    is
-      Loader_Index : User_Address := Data_Space'First;
+      Loader_Index : User_Address := User_Space'First;
       package Word_IO is new Ada.Sequential_IO (Memory_Word);
       use Word_IO;
       F            : Word_IO.File_Type;
