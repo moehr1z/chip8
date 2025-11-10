@@ -14,23 +14,13 @@ jobs:
       fail-fast: false # Don't stop all the workflows when one of them fails.
 
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest] # List of GitHub Actions platform to run the workflow on
+        os: [ubuntu-latest, windows-latest, macos-15] # List of GitHub Actions platform to run the workflow on
 
     runs-on: ${{ matrix.os }} # Run the continuous integration workflow on each OS listed in the matrix.
 
     steps:
         # Check-out the repository
       - uses: actions/checkout@v2
-
-      - name: Install macOS dependencies
-        if: runner.os == 'macOS'
-        run: |
-          brew update
-          brew install sdl2
-          brew install sdl2_ttf
-          brew install sdl2_image
-          brew install sdl2_mixer
-
 
         # Install and setup Alire package manager
       - uses: alire-project/setup-alire@v4
