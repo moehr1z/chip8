@@ -10,7 +10,7 @@ is
    -- Predefined font for hexadecimal values
    subtype Font_Range is Integer range 0 .. 16#F#;
    subtype Hex_Sprite is Sprite (1 .. 5);
-   Hex_Sprites : constant array (Font_Range) of Hex_Sprite :=
+   Hex_Sprites_Array : constant array (Font_Range) of Hex_Sprite :=
      [0     => [16#F0#, 16#90#, 16#90#, 16#90#, 16#F0#],
       1     => [16#20#, 16#60#, 16#20#, 16#20#, 16#70#],
       2     => [16#F0#, 16#10#, 16#F0#, 16#80#, 16#F0#],

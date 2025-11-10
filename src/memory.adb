@@ -58,9 +58,10 @@ is
    procedure Load_Font is
       Start_Address : constant := Interpreter_Space'First;
    begin
-      for Index_Sprite in Hex_Sprites'Range loop
+      for Index_Sprite in Hex_Sprites_Array'Range loop
          declare
-            Current_Sprite : constant Hex_Sprite := Hex_Sprites (Index_Sprite);
+            Current_Sprite : constant Hex_Sprite :=
+              Hex_Sprites_Array (Index_Sprite);
          begin
             for Index_Byte in Current_Sprite'Range loop
                declare
