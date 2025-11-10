@@ -86,8 +86,7 @@ begin
    Memory.Load_Font;
    Memory.Load_Program (To_String (Rom), Load_Result);
    if not Load_Result.Success then
-      Put_Line
-        ("Could not load program (" & Display_Init_Result.Message'Image & ")");
+      Put_Line ("Could not load program (" & Load_Result.Message'Image & ")");
       Dump_State;
       Set_Exit_Status (1);
       return;
