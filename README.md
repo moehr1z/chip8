@@ -1,10 +1,10 @@
 # CHIP 8
 
 A CHIP-8 emulator in Ada/Spark.  
-Spark is a subset of the Ada programming language, which is subject to formal reasoning about the programs integrity and functional correctness.
+[Spark](https://en.wikipedia.org/wiki/SPARK_(programming_language)) is a subset of the [Ada](https://en.wikipedia.org/wiki/Ada_(programming_language)) programming language, which is subject to formal reasoning about the programs integrity and functional correctness.
 It is intended for use in highly reliable, high integrity software (so kind of overkill here...).
 Currently around 80% of the code is formally verified to be free of runtime errors.
-The emulator uses SDL for audio, graphics and input and was tested with [Timendus Chip-8 test suite](https://github.com/Timendus/chip8-test-suite).
+The emulator uses [SDL](https://www.libsdl.org/) for audio, graphics and input and was tested with [Timendus Chip-8 test suite](https://github.com/Timendus/chip8-test-suite).
 
 <img width="5130" height="2570" alt="chip8" src="https://github.com/user-attachments/assets/9a3da77a-4f78-4b9b-a6b3-f155b8edc84f" />
 
