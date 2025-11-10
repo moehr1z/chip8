@@ -105,6 +105,7 @@ procedure Chip8 is
    procedure Main_Loop is
       Step_Result           : Results.Result_Type;
       Display_Update_Result : Results.Result_Type;
+      Paused                : Boolean := False;
 
       Micro         : constant Float := 10.0**6;
       Period        : constant Time_Span :=
@@ -120,11 +121,14 @@ procedure Chip8 is
             case Current_Event.Common.Event_Type is
                when Key_Down =>
                   declare
-                     Key : constant Keypad.Key_Option :=
-                       Keypad.Scan_Code_To_Key
-                         (Current_Event.Keyboard.Key_Sym.Scan_Code);
+                     Scan_Code : constant Scan_Codes :=
+                       Current_Event.Keyboard.Key_Sym.Scan_Code;
+                     Key       : constant Keypad.Key_Option :=
+                       Keypad.Scan_Code_To_Key (Scan_Code);
                   begin
-                     if Key.Is_Some then
+                     if Scan_Code = Scan_Code_P then
+                        Paused := not Paused;
+                     elsif Key.Is_Some then
                         Keypad.Pressed_Keys (Key.Key) := True;
                      end if;
                   end;
@@ -156,6 +160,10 @@ procedure Chip8 is
          end loop;
 
          for I in 1 .. Batch_Size loop
+            if Paused then
+               exit;
+            end if;
+
             -- We don't execute anything if we are waiting for input, but still want the timers to continue running
             if Keypad.Waiting_For_Input then
                exit;
