@@ -11,8 +11,6 @@ tags = []
 [build-switches]
 "*".style_checks = "No"
 "*".ada_Version = "Ada2022"
-development.runtime_checks = "Everything"
-development.contracts = "Yes"
 release.runtime_checks = "None"
 
 [[depends-on]]
