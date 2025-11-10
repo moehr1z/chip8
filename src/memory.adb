@@ -44,7 +44,6 @@ is
 
    exception
       when E : others =>
-         Close (F);
          Result :=
            (Success => False,
             Message =>
