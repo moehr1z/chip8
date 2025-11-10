@@ -36,7 +36,16 @@ procedure Chip8 is
    begin
       loop
          begin
-            case Getopt ("r: b: s:") is
+            case Getopt ("r: b: s: h") is
+               when 'h' =>
+                  Put_Line ("=== Options ===");
+                  Put_Line ("-r [f]" & HT & HT & "Run the given program file");
+                  Put_Line
+                    ("-b [n]" & HT & HT & "Execute n instructions per frame");
+                  Put_Line
+                    ("-s [n]" & HT & HT & "Scale the output by factor n");
+                  GNAT.OS_Lib.OS_Exit (0);
+
                when 'r' =>
                   Rom := To_Unbounded_String (Parameter);
 
