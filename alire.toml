@@ -13,6 +13,7 @@ tags = []
 "*".ada_Version = "Ada2022"
 development.runtime_checks = "Everything"
 development.contracts = "Yes"
+release.runtime_checks = "None"
 
 [[depends-on]]
 sdlada = "^2.5.20"
