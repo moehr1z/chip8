@@ -15,3 +15,6 @@ release.runtime_checks = "None"
 
 [[depends-on]]
 sdlada = "^2.5.20"
+
+[[depends-on]]
+gnatprove = "^13.2.1"
