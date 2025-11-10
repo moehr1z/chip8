@@ -6,26 +6,30 @@ with Timers;
 with Keypad;
 with Random_Numbers;
 
-package body Instructions is
+package body Instructions
+  with SPARK_Mode => On
+is
    procedure Step (Result : out Result_Type) is
       O : constant Opcode := Fetch;
    begin
       if not Can_Increment_Program_Counter then
          Result := Generate_Program_Counter_Error;
          return;
+      else
+         Increment_Program_Counter;
+         Execute (O, Result);
       end if;
-
-      Increment_Program_Counter;
-      Execute (O, Result);
    end Step;
 
    function Fetch return Opcode is
+      -- gnatprove complains if I convert the values below to integer, so a new type here
+      type UInt16 is mod 2**16;
       First_Byte  : constant Memory_Word := Load (Get_Program_Counter);
       Second_Byte : constant Memory_Word := Load (Get_Program_Counter + 1);
       Code        : constant Opcode :=
         Opcode
-          ((Integer (First_Byte) * (Integer (Memory_Word'Last) + 1))
-           + Integer (Second_Byte));
+          ((UInt16 (First_Byte) * (UInt16 (Memory_Word'Last) + 1))
+           + UInt16 (Second_Byte));
    begin
       return Code;
    end Fetch;
@@ -41,24 +45,31 @@ package body Instructions is
 
                when 16#00EE# =>
                   Handle_Ret (Result);
+                  return;
 
                when others =>
-                  Handle_Sys_Addr;
+                  -- The SYS  instruction is only used on the old computers
+                  -- on which Chip-8 was originally implemented. We ignore it.
+                  null;
             end case;
 
          when 16#1000# =>
             Handle_Jp_Addr (Address (I.NNN_Value), Result);
+            return;
 
          when 16#2000# =>
             Handle_Call_Addr (Address (I.NNN_Value), Result);
+            return;
 
          when 16#3000# =>
             Handle_Se_Vx_Byte
               (General_Register_Number (I.X_Value), Byte (I.KK_Value), Result);
+            return;
 
          when 16#4000# =>
             Handle_Sne_Vx_Byte
               (General_Register_Number (I.X_Value), Byte (I.KK_Value), Result);
+            return;
 
          when 16#5000# =>
             if (O and 16#000F#) = 0 then
@@ -66,8 +77,10 @@ package body Instructions is
                  (General_Register_Number (I.X_Value),
                   General_Register_Number (I.Y_Value),
                   Result);
+               return;
             else
                Result := Generate_Unknown_Opcode_Error;
+               return;
             end if;
 
          when 16#6000# =>
@@ -123,6 +136,7 @@ package body Instructions is
 
                when others =>
                   Result := Generate_Unknown_Opcode_Error;
+                  return;
             end case;
 
          when 16#9000# =>
@@ -130,6 +144,7 @@ package body Instructions is
               (General_Register_Number (I.X_Value),
                General_Register_Number (I.Y_Value),
                Result);
+            return;
 
          when 16#A000# =>
             Handle_Ld_I_Addr (Address (I.NNN_Value));
@@ -137,8 +152,9 @@ package body Instructions is
          when 16#B000# =>
             Handle_Jp_Vx_Addr
               (General_Register_Number (I.X_Value),
-               User_Address (I.NNN_Value),
+               Address (I.NNN_Value),
                Result);
+            return;
 
          when 16#C000# =>
             Handle_Rnd_Vx_Byte
@@ -154,12 +170,15 @@ package body Instructions is
             case O and 16#00FF# is
                when 16#009E# =>
                   Handle_Skp_Vx (General_Register_Number (I.X_Value), Result);
+                  return;
 
                when 16#00A1# =>
                   Handle_Sknp_Vx (General_Register_Number (I.X_Value), Result);
+                  return;
 
                when others =>
                   Result := Generate_Unknown_Opcode_Error;
+                  return;
             end case;
 
          when 16#F000# =>
@@ -177,27 +196,35 @@ package body Instructions is
                   Handle_Ld_St_Vx (General_Register_Number (I.X_Value));
 
                when 16#001E# =>
-                  Handle_Add_I_Vx (General_Register_Number (I.X_Value));
+                  Handle_Add_I_Vx
+                    (General_Register_Number (I.X_Value), Result);
+                  return;
 
                when 16#0029# =>
                   Handle_Ld_F_Vx (General_Register_Number (I.X_Value));
 
                when 16#0033# =>
-                  Handle_Ld_B_Vx (General_Register_Number (I.X_Value));
+                  Handle_Ld_B_Vx (General_Register_Number (I.X_Value), Result);
+                  return;
 
                when 16#0055# =>
-                  Handle_Ld_I_Vx (General_Register_Number (I.X_Value));
+                  Handle_Ld_I_Vx (General_Register_Number (I.X_Value), Result);
+                  return;
 
                when 16#0065# =>
                   Handle_Ld_Vx_I (General_Register_Number (I.X_Value));
 
                when others =>
                   Result := Generate_Unknown_Opcode_Error;
+                  return;
             end case;
 
          when others =>
             Result := Generate_Unknown_Opcode_Error;
+            return;
       end case;
+
+      Result := (Success => True);
    end Execute;
 
    function To_Instruction (O : Opcode) return Instruction is
@@ -210,28 +237,19 @@ package body Instructions is
       return (N_Value, NNN_Value, X_Value, Y_Value, KK_Value);
    end To_Instruction;
 
-   function Generate_Program_Counter_Error return Result_Type is
-   begin
-      return
-        (Success => False,
-         Message =>
-           To_Result_String
-             ("Cannot increase program counter because it already points to the last user address"));
-   end Generate_Program_Counter_Error;
+   function Generate_Program_Counter_Error return Result_Type
+   is (Success => False,
+       Message =>
+         To_Result_String
+           ("Cannot increase program counter because it already points to the last user address"));
 
-   function Generate_Address_Bounds_Error return Result_Type is
-   begin
-      return
-        (Success => False,
-         Message =>
-           To_Result_String ("Address out of user or font space bounds"));
-   end Generate_Address_Bounds_Error;
+   function Generate_Address_Bounds_Error return Result_Type
+   is (Success => False,
+       Message =>
+         To_Result_String ("Address out of user or font space bounds"));
 
-   function Generate_Unknown_Opcode_Error return Result_Type is
-   begin
-      return
-        (Success => False, Message => To_Result_String ("Unknown opcode"));
-   end Generate_Unknown_Opcode_Error;
+   function Generate_Unknown_Opcode_Error return Result_Type
+   is (Success => False, Message => To_Result_String ("Unknown opcode"));
 
    -- Instruction handlers
    --
@@ -248,34 +266,30 @@ package body Instructions is
          Result :=
            (Success => False, Message => To_Result_String ("Stack Empty"));
          return;
+      else
+         Stack.Pop (Return_Address);
+         Set_Program_Counter (Return_Address);
       end if;
-
-      Stack.Pop (Return_Address);
-      Set_Program_Counter (Return_Address);
+      Result := (Success => True);
    end Handle_Ret;
-
-   procedure Handle_Sys_Addr is
-   begin
-      -- The SYS  instruction is only used on the old computers
-      -- on which Chip-8 was originally implemented. We ignore it.
-      return;
-   end Handle_Sys_Addr;
 
    procedure Handle_Jp_Addr
      (Target_Address : Address; Result : out Result_Type) is
    begin
-      if not Memory.Is_User_Address (Integer (Target_Address)) then
+      if not (Target_Address in Memory.User_Address) then
          Result := Generate_Address_Bounds_Error;
          return;
+      else
+         Set_Program_Counter (Target_Address);
       end if;
 
-      Set_Program_Counter (Target_Address);
+      Result := (Success => True);
    end Handle_Jp_Addr;
 
    procedure Handle_Call_Addr
      (Target_Address : Address; Result : out Result_Type) is
    begin
-      if not Memory.Is_User_Address (Integer (Target_Address)) then
+      if not (Target_Address in User_Address) then
          Result := Generate_Address_Bounds_Error;
          return;
       end if;
@@ -284,10 +298,12 @@ package body Instructions is
          Result :=
            (Success => False, Message => To_Result_String ("Stack Full"));
          return;
+      else
+         Stack.Push (Get_Program_Counter);
+         Set_Program_Counter (Target_Address);
       end if;
 
-      Stack.Push (Get_Program_Counter);
-      Set_Program_Counter (Target_Address);
+      Result := (Success => True);
    end Handle_Call_Addr;
 
    procedure Handle_Jp_Vx_Addr
@@ -300,12 +316,17 @@ package body Instructions is
       Final_Address : constant Integer :=
         Integer (Target_Address) + Integer (Value);
    begin
-      if not Memory.Is_User_Address (Final_Address) then
+      if not (Final_Address
+              in Integer (Memory.User_Address'First)
+               .. Integer (Memory.User_Address'Last))
+      then
          Result := Generate_Address_Bounds_Error;
          return;
+      else
+         Set_Program_Counter (User_Address (Final_Address));
       end if;
 
-      Set_Program_Counter (User_Address (Final_Address));
+      Result := (Success => True);
    end Handle_Jp_Vx_Addr;
 
    procedure Handle_Ld_I_Addr (Target_Address : Address) is
@@ -322,11 +343,12 @@ package body Instructions is
          if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
+         else
+            Increment_Program_Counter;
          end if;
-
-         Increment_Program_Counter;
       end if;
 
+      Result := (Success => True);
    end Handle_Se_Vx_Byte;
 
    procedure Handle_Sne_Vx_Byte
@@ -338,11 +360,12 @@ package body Instructions is
          if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
+         else
+            Increment_Program_Counter;
          end if;
-
-         Increment_Program_Counter;
       end if;
 
+      Result := (Success => True);
    end Handle_Sne_Vx_Byte;
 
    procedure Handle_Ld_Vx_Byte (Register_1 : General_Register_Number; B : Byte)
@@ -372,14 +395,25 @@ package body Instructions is
    is
       Key : constant Register_Word := Get_General_Register (Register_1);
    begin
-      if Keypad.Pressed_Keys (Keypad.Keypad_Key (Key)) then
-         if not Can_Increment_Program_Counter then
-            Result := Generate_Program_Counter_Error;
-            return;
+      if not (Integer (Key)
+              in Integer (Keypad.Keypad_Key'First)
+               .. Integer (Keypad.Keypad_Key'Last))
+      then
+         Result :=
+           (Success => False, Message => To_Result_String ("Key not valid"));
+         return;
+      else
+         if Keypad.Pressed_Keys (Keypad.Keypad_Key (Key)) then
+            if not Can_Increment_Program_Counter then
+               Result := Generate_Program_Counter_Error;
+               return;
+            else
+               Increment_Program_Counter;
+            end if;
          end if;
-
-         Increment_Program_Counter;
       end if;
+
+      Result := (Success => True);
    end Handle_Skp_Vx;
 
    procedure Handle_Sknp_Vx
@@ -387,15 +421,25 @@ package body Instructions is
    is
       Key : constant Register_Word := Get_General_Register (Register_1);
    begin
-      if not Keypad.Pressed_Keys (Keypad.Keypad_Key (Key)) then
-         if not Can_Increment_Program_Counter then
-            Result := Generate_Program_Counter_Error;
-            return;
+      if not (Integer (Key)
+              in Integer (Keypad.Keypad_Key'First)
+               .. Integer (Keypad.Keypad_Key'Last))
+      then
+         Result :=
+           (Success => False, Message => To_Result_String ("Key not valid"));
+         return;
+      else
+         if not Keypad.Pressed_Keys (Keypad.Keypad_Key (Key)) then
+            if not Can_Increment_Program_Counter then
+               Result := Generate_Program_Counter_Error;
+               return;
+            else
+               Increment_Program_Counter;
+            end if;
          end if;
-
-         Increment_Program_Counter;
       end if;
 
+      Result := (Success => True);
    end Handle_Sknp_Vx;
 
    procedure Handle_Ld_Vx_Dt (Register_1 : General_Register_Number) is
@@ -423,14 +467,26 @@ package body Instructions is
       Timers.Set_Sound_Timer (Timers.Timer (Value));
    end Handle_Ld_St_Vx;
 
-   procedure Handle_Add_I_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Add_I_Vx
+     (Register_1 : General_Register_Number; Result : out Result_Type)
+   is
       Value_R1               : constant Register_Word :=
         Get_General_Register (Register_1);
       Value_Address_Register : constant Address := Get_Address_Register;
       Final_Address          : constant Integer :=
         Integer (Value_Address_Register) + Integer (Value_R1);
    begin
-      Set_Address_Register (Address (Final_Address));
+      if not (Final_Address
+              in Integer (Memory.Address'First)
+               .. Integer (Memory.Address'Last))
+      then
+         Result := Generate_Address_Bounds_Error;
+         return;
+      else
+         Set_Address_Register (Address (Final_Address));
+      end if;
+
+      Result := (Success => True);
    end Handle_Add_I_Vx;
 
    procedure Handle_Ld_F_Vx (Register_1 : General_Register_Number) is
@@ -443,31 +499,64 @@ package body Instructions is
       Set_Address_Register (Address (Sprite_Address));
    end Handle_Ld_F_Vx;
 
-   -- TODO: range check
-   procedure Handle_Ld_B_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Ld_B_Vx
+     (Register_1 : General_Register_Number; Result : out Result_Type)
+   is
       BCD_Value       : constant BCD.BCD_Array :=
         BCD.To_BCD (Integer (Get_General_Register (Register_1)));
+      Initial_Address : constant Address := Get_Address_Register;
       Current_Address : Address := Get_Address_Register;
    begin
       for I in 0 .. 2 - BCD_Value'Length loop
-         Memory.Store (Current_Address, 0);
-         Current_Address := Current_Address + 1;
+         if Current_Address not in User_Address
+           or Current_Address
+              < Initial_Address -- wrap around, which should not happen
+         then
+            Result := Generate_Address_Bounds_Error;
+            return;
+         else
+            Memory.Store (Current_Address, 0);
+            Current_Address := Current_Address + 1;
+         end if;
       end loop;
 
       for I in BCD_Value'Range loop
-         Memory.Store (Current_Address, Memory_Word (BCD_Value (I)));
-         Current_Address := Current_Address + 1;
+         if Current_Address not in User_Address
+           or Current_Address
+              < Initial_Address -- wrap around, which should not happen
+         then
+            Result := Generate_Address_Bounds_Error;
+            return;
+         else
+            Memory.Store (Current_Address, Memory_Word (BCD_Value (I)));
+            Current_Address := Current_Address + 1;
+         end if;
       end loop;
+
+      Result := (Success => True);
    end Handle_Ld_B_Vx;
 
-   procedure Handle_Ld_I_Vx (Register_1 : General_Register_Number) is
+   procedure Handle_Ld_I_Vx
+     (Register_1 : General_Register_Number; Result : out Result_Type)
+   is
+      Initial_Address : constant Address := Get_Address_Register;
       Current_Address : Address := Get_Address_Register;
    begin
       for Register in General_Register_Number'First .. Register_1 loop
-         Memory.Store
-           (Current_Address, Memory_Word (Get_General_Register (Register)));
-         Current_Address := Current_Address + 1;
+         if Current_Address not in User_Address
+           or Current_Address
+              < Initial_Address -- wrap around, which should not happen
+         then
+            Result := Generate_Address_Bounds_Error;
+            return;
+         else
+            Memory.Store
+              (Current_Address, Memory_Word (Get_General_Register (Register)));
+            Current_Address := Current_Address + 1;
+         end if;
       end loop;
+
+      Result := (Success => True);
    end Handle_Ld_I_Vx;
 
    procedure Handle_Ld_Vx_I (Register_1 : General_Register_Number) is
@@ -490,10 +579,12 @@ package body Instructions is
          if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
+         else
+            Increment_Program_Counter;
          end if;
-
-         Increment_Program_Counter;
       end if;
+
+      Result := (Success => True);
    end Handle_Se_Vx_Vy;
 
    procedure Handle_Ld_Vx_Vy
@@ -574,10 +665,12 @@ package body Instructions is
          if not Can_Increment_Program_Counter then
             Result := Generate_Program_Counter_Error;
             return;
+         else
+            Increment_Program_Counter;
          end if;
-
-         Increment_Program_Counter;
       end if;
+
+      Result := (Success => True);
    end Handle_Sne_Vx_Vy;
 
    procedure Handle_Drw_Vx_Vy_Nibble
