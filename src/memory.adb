@@ -65,7 +65,7 @@ is
             for Index_Byte in Current_Sprite'Range loop
                declare
                   Sprite_Offset : constant Natural :=
-                    Natural (Index_Sprite * Hex_Sprites'Length);
+                    Natural (Index_Sprite * Hex_Sprite'Length);
                   Byte_Offset   : constant Natural := Natural (Index_Byte - 1);
                begin
 
