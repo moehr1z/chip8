@@ -24,7 +24,7 @@ is
          Current_Location : Address := Location;
          Out_Sprite       : Sprite (1 .. Size);
       begin
-         for Row_Index in 1 .. Size loop
+         for Row_Index in Out_Sprite'Range loop
             Out_Sprite (Row_Index) :=
               Sprite_Row_Value (Load (Current_Location));
             Current_Location := Current_Location + 1;
