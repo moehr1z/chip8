@@ -22,6 +22,16 @@ jobs:
         # Check-out the repository
       - uses: actions/checkout@v2
 
+      - name: Install macOS dependencies
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install sdl2
+          brew install sdl2_ttf
+          brew install sdl2_image
+          brew install sdl2_mixer
+
+
         # Install and setup Alire package manager
       - uses: alire-project/setup-alire@v4
         with:
