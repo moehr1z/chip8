@@ -25,7 +25,7 @@ package body Display.SDL_Handling is
             Flags    => 0);
          SDL.Video.Renderers.Makers.Create (Renderer, Window);
 
-         Renderer.Set_Draw_Colour ((0, 0, 0, 255));
+         Renderer.Set_Draw_Colour ((30, 30, 30, 255));
          Renderer.Clear;
          Renderer.Present;
 
@@ -45,9 +45,9 @@ package body Display.SDL_Handling is
          for X in Display_Array'Range (1) loop
             for Y in Display_Array'Range (2) loop
                if Display_Array (X, Y) = True then
-                  Renderer.Set_Draw_Colour ((0, 255, 0, 255));
+                  Renderer.Set_Draw_Colour ((50, 205, 50, 255));
                else
-                  Renderer.Set_Draw_Colour ((0, 0, 0, 255));
+                  Renderer.Set_Draw_Colour ((30, 30, 30, 255));
                end if;
 
                Renderer.Fill
