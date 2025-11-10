@@ -6,13 +6,14 @@ with Random_Numbers;
 with Results;
 with Timers;
 with Keypad;
-with Ada.Text_IO;           use Ada.Text_IO;
-with Ada.Real_Time;         use Ada.Real_Time;
-with Ada.Command_Line;      use Ada.Command_Line;
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
-with GNAT.Command_Line;     use GNAT.Command_Line;
-with SDL.Events.Events;     use SDL.Events.Events;
-with SDL.Events.Keyboards;  use SDL.Events.Keyboards;
+with Ada.Text_IO;             use Ada.Text_IO;
+with Ada.Real_Time;           use Ada.Real_Time;
+with Ada.Command_Line;        use Ada.Command_Line;
+with Ada.Strings.Unbounded;   use Ada.Strings.Unbounded;
+with GNAT.Command_Line;       use GNAT.Command_Line;
+with SDL.Events.Events;       use SDL.Events.Events;
+with SDL.Events.Keyboards;    use SDL.Events.Keyboards;
+with Ada.Task_Identification; use Ada.Task_Identification;
 
 with Registers;
 
@@ -52,13 +53,13 @@ procedure Chip8 is
                   Put_Line
                     ("Unknown command line argument (" & Parameter & ")!");
                   Set_Exit_Status (1);
-                  return;
+                  Abort_Task (Current_Task);
             end case;
          exception
             when others =>
                Put_Line ("Could not parse command line arguments!");
                Set_Exit_Status (1);
-               return;
+               Abort_Task (Current_Task);
          end;
 
       end loop;
@@ -79,7 +80,7 @@ procedure Chip8 is
             & ")");
          Dump_State;
          Set_Exit_Status (1);
-         return;
+         Abort_Task (Current_Task);
       end if;
 
       Audio.Init (Audio_Init_Result);
@@ -91,7 +92,7 @@ procedure Chip8 is
            ("Could not load program (" & String (Load_Result.Message) & ")");
          Dump_State;
          Set_Exit_Status (1);
-         return;
+         Abort_Task (Current_Task);
       end if;
    end Initialise;
 
@@ -141,7 +142,7 @@ procedure Chip8 is
                   end;
 
                when SDL.Events.Quit =>
-                  return;
+                  Abort_Task (Current_Task);
 
                when others =>
                   null;
@@ -163,7 +164,7 @@ procedure Chip8 is
                   & ")");
                Dump_State;
                Set_Exit_Status (1);
-               return;
+               Abort_Task (Current_Task);
             end if;
 
          end loop;
@@ -176,7 +177,7 @@ procedure Chip8 is
                & ")");
             Dump_State;
             Set_Exit_Status (1);
-            return;
+            Abort_Task (Current_Task);
          end if;
 
          Audio.Handle_Audio;
