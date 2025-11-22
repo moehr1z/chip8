@@ -90,6 +90,14 @@ procedure Chip8 is
       end if;
 
       Audio.Init (Audio_Init_Result);
+      if not Audio_Init_Result.Success then
+         Put_Line
+           ("Could not initialize audio ("
+            & String (Audio_Init_Result.Message)
+            & ")");
+         Dump_State;
+         GNAT.OS_Lib.OS_Exit (1);
+      end if;
 
       Memory.Load_Font;
       Memory.Load_Program (To_String (Rom), Load_Result);
