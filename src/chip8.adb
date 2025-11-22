@@ -8,7 +8,6 @@ with Timers;
 with Keypad;
 with Ada.Text_IO;            use Ada.Text_IO;
 with Ada.Real_Time;          use Ada.Real_Time;
-with Ada.Command_Line;       use Ada.Command_Line;
 with Ada.Strings.Unbounded;  use Ada.Strings.Unbounded;
 with GNAT.Command_Line;      use GNAT.Command_Line;
 with SDL.Events.Events;      use SDL.Events.Events;
@@ -203,8 +202,6 @@ procedure Chip8 is
       end loop;
    end Main_Loop;
 begin
-   Set_Exit_Status (0);
-
    Read_In_Args;
    Initialise;
    Main_Loop;
