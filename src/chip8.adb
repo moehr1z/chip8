@@ -33,6 +33,7 @@ procedure Chip8 is
    end Dump_State;
 
    procedure Read_In_Args is
+      Max_Scaling : constant := 40;
    begin
       loop
          begin
@@ -43,7 +44,12 @@ procedure Chip8 is
                   Put_Line
                     ("-b [n]" & HT & HT & "Execute n instructions per frame");
                   Put_Line
-                    ("-s [n]" & HT & HT & "Scale the output by factor n");
+                    ("-s [n]"
+                     & HT
+                     & HT
+                     & "Scale the output by factor n (1 .."
+                     & Max_Scaling'Image
+                     & ")");
                   GNAT.OS_Lib.OS_Exit (0);
 
                when 'r' =>
@@ -54,6 +60,12 @@ procedure Chip8 is
 
                when 's' =>
                   Scaling := Integer'Value (Parameter);
+                  if Scaling < 1 or Scaling > Max_Scaling then
+                     Put_Line
+                       ("Scaling factor has to be between 1 and"
+                        & Max_Scaling'Image);
+                     GNAT.OS_Lib.OS_Exit (1);
+                  end if;
 
                when ASCII.NUL =>
                   exit;
