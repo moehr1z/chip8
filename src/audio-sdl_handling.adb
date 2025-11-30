@@ -25,10 +25,13 @@ package body Audio.SDL_Handling is
       Pause (Audio_Device, B);
    end Pause_Sound;
 
-   pragma Warnings (Off, "formal parameter ""User"" is not referenced");
    procedure Generate_Tone
      (User : in User_Data_Access; Data : out Sample_Buffer) is
    begin
+      -- The Audio_Callback type requires us to have this signature,
+      -- but we don't actually need User
+      pragma Unreferenced (User);
+
       Audio.Fill_Sample_Buffer (Data);
    end Generate_Tone;
 end Audio.SDL_Handling;
